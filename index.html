@@ -6,10 +6,10 @@
 <title>雪鹰领主 · 终极考验</title>
 <style>
 :root{
-  --paper:#f2ead8; --paper2:#e9dfc6; --card:#fbf6e9;
-  --ink:#33302a; --ink-soft:#6e675a; --ink-faint:#9a917e;
-  --cinnabar:#a83a2c; --cinnabar2:#c2503e;
-  --pine:#4c6353; --gold:#a8834f; --line:rgba(90,75,50,.28);
+  --paper:#f7fbfa; --card:#ffffff;
+  --ink:#2c3a3d; --ink-soft:#5a6f73; --ink-faint:#8ba0a3;
+  --azure:#2f7f95; --azure-d:#266b7f; --teal:#4da28b; --teal-l:#7cc4ae;
+  --line:rgba(47,127,149,.22);
 }
 *{margin:0;padding:0;box-sizing:border-box}
 html{scroll-behavior:smooth}
@@ -20,112 +20,102 @@ body{
 }
 .screen{position:relative;z-index:2;max-width:880px;margin:0 auto;padding:26px 18px 90px}
 .hidden{display:none!important}
-
-#inkbg{position:fixed;inset:0;z-index:0;pointer-events:none}
-#dust{position:fixed;inset:0;z-index:1;pointer-events:none}
+#danbg{position:fixed;inset:0;z-index:0;pointer-events:none}
+#breeze{position:fixed;inset:0;z-index:1;pointer-events:none}
 
 /* ============ 开屏 ============ */
 #intro{min-height:100vh;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center}
-.seal{
-  width:76px;height:76px;background:var(--cinnabar);color:#f8ecd9;
-  display:flex;align-items:center;justify-content:center;font-size:36px;
-  transform:rotate(45deg);margin-bottom:40px;border-radius:6px;
-  box-shadow:0 4px 18px rgba(168,58,44,.4);position:relative;
-}
-.seal::after{content:"";position:absolute;inset:5px;border:1.5px solid rgba(248,236,217,.7);border-radius:3px}
-.seal span{transform:rotate(-45deg)}
+.medal{width:110px;height:110px;margin-bottom:34px;position:relative}
+.medal svg{width:100%;height:100%;overflow:visible}
+.spin{animation:spin 26s linear infinite;transform-origin:center}
+@keyframes spin{to{transform:rotate(360deg)}}
 h1.title{
-  font-size:clamp(36px,7.5vw,60px);letter-spacing:.22em;color:var(--ink);
-  text-shadow:0 2px 0 rgba(255,255,255,.6);font-weight:700;
+  font-size:clamp(36px,7.5vw,60px);letter-spacing:.22em;color:var(--azure);
+  text-shadow:0 2px 0 rgba(255,255,255,.8);font-weight:700;
 }
-h1.title em{font-style:normal;color:var(--cinnabar)}
+h1.title em{font-style:normal;color:var(--teal)}
 .subtitle{margin-top:14px;color:var(--ink-soft);letter-spacing:.42em;font-size:15px}
-.cloud-div{width:min(420px,86vw);margin:30px auto;opacity:.85;display:block}
+.cloud-div{width:min(430px,86vw);margin:30px auto;opacity:.9;display:block}
 .intro-text{max-width:580px;line-height:2.15;color:var(--ink-soft);font-size:15.5px;text-align:center}
-.intro-text b{color:var(--cinnabar);font-weight:600}
-.scroll-table{
-  margin:36px auto 0;background:var(--card);border:1px solid var(--line);border-radius:6px;
-  padding:8px 10px;box-shadow:0 6px 24px rgba(90,75,50,.12);min-width:min(540px,92vw);
+.intro-text b{color:var(--azure);font-weight:600}
+.rank-table{
+  margin:36px auto 0;background:var(--card);border:1px solid var(--line);border-radius:14px;
+  padding:10px 14px;box-shadow:0 8px 30px rgba(47,127,149,.10);min-width:min(540px,92vw);
 }
-.scroll-table table{border-collapse:collapse;font-size:14.5px;width:100%}
-.scroll-table td{border-bottom:1px dashed rgba(90,75,50,.18);padding:10px 16px;text-align:left}
-.scroll-table tr:last-child td{border-bottom:none}
-.scroll-table td:first-child{color:var(--cinnabar);white-space:nowrap;font-weight:600}
-.scroll-table td:nth-child(2){color:var(--ink);white-space:nowrap}
-.scroll-table td:last-child{color:var(--ink-faint);font-size:13.5px}
+.rank-table table{border-collapse:collapse;font-size:14.5px;width:100%}
+.rank-table td{border-bottom:1px dashed rgba(47,127,149,.18);padding:10px 16px;text-align:left}
+.rank-table tr:last-child td{border-bottom:none}
+.rank-table td:first-child{color:var(--azure);white-space:nowrap;font-weight:600}
+.rank-table td:nth-child(2){color:var(--ink);white-space:nowrap}
+.rank-table td:last-child{color:var(--ink-faint);font-size:13.5px}
 
-/* ============ 按钮 ============ */
+/* ============ 按钮（云纹圆润风） ============ */
 .btn{
-  display:inline-block;background:var(--cinnabar);color:#f8ecd9;
-  padding:13px 54px;font-size:18px;letter-spacing:.42em;text-indent:.42em;cursor:pointer;
-  font-family:inherit;border:none;border-radius:4px;transition:.25s;margin-top:46px;
-  box-shadow:0 4px 16px rgba(168,58,44,.35);position:relative;
+  display:inline-block;color:#fff;border:none;cursor:pointer;font-family:inherit;
+  background:linear-gradient(135deg,var(--azure),var(--teal));
+  padding:14px 56px;font-size:18px;letter-spacing:.42em;text-indent:.42em;border-radius:28px;
+  transition:.25s;margin-top:46px;box-shadow:0 6px 20px rgba(47,127,149,.30);position:relative;
 }
-.btn::after{content:"";position:absolute;inset:4px;border:1px solid rgba(248,236,217,.45);border-radius:2px}
-.btn:hover{background:var(--cinnabar2);transform:translateY(-2px);box-shadow:0 8px 26px rgba(168,58,44,.45)}
-.btn.small{padding:8px 22px;font-size:14.5px;letter-spacing:.15em;text-indent:.15em;margin:0}
-.btn.ghost{background:transparent;color:var(--ink-soft);border:1px solid var(--line);box-shadow:none}
-.btn.ghost::after{display:none}
-.btn.ghost:hover{color:var(--cinnabar);border-color:var(--cinnabar);transform:none;box-shadow:none}
+.btn:hover{transform:translateY(-2px);box-shadow:0 10px 30px rgba(47,127,149,.42);filter:brightness(1.06)}
+.btn.small{padding:8px 22px;font-size:14.5px;letter-spacing:.15em;text-indent:.15em;margin:0;border-radius:20px}
+.btn.ghost{background:rgba(255,255,255,.7);color:var(--ink-soft);border:1px solid var(--line);box-shadow:none}
+.btn.ghost:hover{color:var(--azure);border-color:var(--azure);transform:none;box-shadow:none;background:#fff}
 
 /* ============ 答题 ============ */
 .topbar{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:14px}
-#progressWrap{flex:1;min-width:180px;height:7px;background:rgba(90,75,50,.15);border-radius:4px;overflow:hidden}
-#progressBar{height:100%;width:0%;background:linear-gradient(90deg,var(--pine),var(--gold));transition:width .3s;border-radius:4px}
+#progressWrap{flex:1;min-width:180px;height:7px;background:rgba(47,127,149,.13);border-radius:4px;overflow:hidden}
+#progressBar{height:100%;width:0%;background:linear-gradient(90deg,var(--azure),var(--teal-l));transition:width .3s;border-radius:4px}
 #progressText{color:var(--ink-soft);font-size:13.5px;white-space:nowrap}
 .sec-label{
-  display:inline-block;color:#f8ecd9;background:var(--pine);font-size:13.5px;letter-spacing:.15em;
-  padding:5px 18px;border-radius:3px;margin-bottom:14px;box-shadow:0 3px 10px rgba(76,99,83,.3);
+  display:inline-block;color:#fff;background:linear-gradient(135deg,var(--azure),var(--teal));font-size:13.5px;letter-spacing:.15em;
+  padding:6px 20px;border-radius:20px;margin-bottom:14px;box-shadow:0 4px 14px rgba(47,127,149,.25);
 }
 .q-card{
-  background:var(--card);border:1px solid var(--line);border-radius:8px;padding:34px 30px;min-height:340px;
-  box-shadow:0 8px 30px rgba(90,75,50,.12);position:relative;
+  background:var(--card);border:1px solid var(--line);border-radius:16px;padding:36px 32px;min-height:340px;
+  box-shadow:0 10px 36px rgba(47,127,149,.10);position:relative;overflow:hidden;
 }
-.q-card::before,.q-card::after{
-  content:"";position:absolute;left:-8px;right:-8px;height:10px;border-radius:5px;
-  background:linear-gradient(180deg,#8a6b45,#5f4a2f);
+.q-card::before{
+  content:"";position:absolute;top:0;left:0;right:0;height:5px;
+  background:linear-gradient(90deg,var(--teal),var(--azure),var(--teal-l));
+  border-radius:16px 16px 0 0;
 }
-.q-card::before{top:-5px}.q-card::after{bottom:-5px}
 .q-head{display:flex;align-items:baseline;gap:12px;margin-bottom:18px;flex-wrap:wrap}
-.q-num{font-size:26px;color:var(--cinnabar)}
-.badge{font-size:12.5px;border:1px solid var(--cinnabar);color:var(--cinnabar);padding:2px 10px;border-radius:20px;letter-spacing:.1em}
-.badge.jade{border-color:var(--pine);color:var(--pine)}
+.q-num{font-size:26px;color:var(--azure)}
+.badge{font-size:12.5px;border:1px solid var(--azure);color:var(--azure);padding:2px 10px;border-radius:20px;letter-spacing:.1em}
+.badge.jade{border-color:var(--teal);color:var(--teal)}
 .q-text{font-size:18.5px;line-height:1.95;margin-bottom:22px}
 .opt{
-  display:block;background:rgba(255,255,255,.55);border:1px solid rgba(90,75,50,.2);border-radius:6px;
+  display:block;background:rgba(47,127,149,.04);border:1px solid rgba(47,127,149,.18);border-radius:12px;
   padding:12px 18px;margin-bottom:10px;cursor:pointer;transition:.2s;font-size:16px;line-height:1.7;
 }
-.opt:hover{border-color:var(--cinnabar);background:rgba(168,58,44,.05)}
-.opt.sel{border-color:var(--cinnabar);background:rgba(168,58,44,.09);color:var(--cinnabar);box-shadow:inset 0 0 0 1px var(--cinnabar)}
-.opt .key{color:var(--cinnabar);margin-right:10px;font-weight:600}
+.opt:hover{border-color:var(--azure);background:rgba(47,127,149,.07)}
+.opt.sel{border-color:var(--azure);background:rgba(47,127,149,.10);color:var(--azure-d);box-shadow:inset 0 0 0 1px var(--azure)}
+.opt .key{color:var(--azure);margin-right:10px;font-weight:600}
 textarea{
-  width:100%;min-height:150px;background:rgba(255,255,255,.6);border:1px solid var(--line);
-  border-radius:6px;color:var(--ink);padding:14px 16px;font-size:16px;font-family:inherit;line-height:1.9;resize:vertical;
+  width:100%;min-height:150px;background:rgba(47,127,149,.04);border:1px solid var(--line);
+  border-radius:12px;color:var(--ink);padding:14px 16px;font-size:16px;font-family:inherit;line-height:1.9;resize:vertical;
 }
-textarea:focus{outline:none;border-color:var(--cinnabar);box-shadow:0 0 0 3px rgba(168,58,44,.1)}
+textarea:focus{outline:none;border-color:var(--azure);box-shadow:0 0 0 3px rgba(47,127,149,.12)}
 textarea:disabled{opacity:.75}
 .nav-row{display:flex;justify-content:space-between;align-items:center;margin-top:22px;gap:10px}
-.ink-mark{
-  position:absolute;right:18px;bottom:14px;font-size:60px;color:rgba(90,75,50,.08);
-  pointer-events:none;user-select:none;line-height:1;
-}
+.wind-mark{position:absolute;right:14px;bottom:8px;width:90px;opacity:.10;pointer-events:none;user-select:none}
 
 /* 题号导航 */
-#navPanel{position:fixed;inset:0;z-index:50;background:rgba(60,52,38,.55);backdrop-filter:blur(5px);overflow-y:auto;padding:30px 16px 60px}
+#navPanel{position:fixed;inset:0;z-index:50;background:rgba(220,238,235,.6);backdrop-filter:blur(6px);overflow-y:auto;padding:30px 16px 60px}
 #navPanel .inner{
-  max-width:860px;margin:0 auto;background:var(--paper);border:1px solid var(--line);border-radius:8px;
-  padding:30px 28px;box-shadow:0 20px 60px rgba(50,40,25,.3);
+  max-width:860px;margin:0 auto;background:var(--paper);border:1px solid var(--line);border-radius:16px;
+  padding:30px 28px;box-shadow:0 20px 60px rgba(47,127,149,.18);
 }
 .nav-sec{margin-bottom:22px}
-.nav-sec h3{color:var(--cinnabar);font-size:15px;margin-bottom:10px;letter-spacing:.1em;border-left:4px solid var(--cinnabar);padding-left:10px}
+.nav-sec h3{color:var(--azure);font-size:15px;margin-bottom:10px;letter-spacing:.1em;border-left:4px solid var(--teal);padding-left:10px}
 .dot{
   display:inline-flex;width:34px;height:34px;margin:3px;align-items:center;justify-content:center;
-  border:1px solid rgba(90,75,50,.3);border-radius:50%;font-size:12.5px;cursor:pointer;color:var(--ink-faint);
-  font-family:inherit;background:rgba(255,255,255,.5);transition:.15s;
+  border:1px solid rgba(47,127,149,.3);border-radius:50%;font-size:12.5px;cursor:pointer;color:var(--ink-faint);
+  font-family:inherit;background:rgba(255,255,255,.7);transition:.15s;
 }
-.dot:hover{border-color:var(--cinnabar);color:var(--cinnabar)}
-.dot.done{background:var(--pine);border-color:var(--pine);color:#f2ead8}
-.dot.cur{outline:2px solid var(--cinnabar);color:var(--cinnabar)}
+.dot:hover{border-color:var(--azure);color:var(--azure)}
+.dot.done{background:linear-gradient(135deg,var(--azure),var(--teal));border-color:transparent;color:#fff}
+.dot.cur{outline:2px solid var(--azure);color:var(--azure)}
 .legend{color:var(--ink-soft);font-size:13px;margin-bottom:16px}
 .legend i{display:inline-block;width:12px;height:12px;border-radius:50%;vertical-align:-1px;margin:0 6px 0 14px}
 
@@ -133,139 +123,159 @@ textarea:disabled{opacity:.75}
 #result{text-align:center}
 .score-ring{
   width:196px;height:196px;border-radius:50%;margin:28px auto;position:relative;
-  border:2px solid var(--gold);display:flex;flex-direction:column;align-items:center;justify-content:center;
-  background:radial-gradient(circle,rgba(255,255,255,.9),rgba(233,223,198,.5) 75%);
-  box-shadow:0 10px 40px rgba(90,75,50,.18);
+  border:2px solid var(--teal);display:flex;flex-direction:column;align-items:center;justify-content:center;
+  background:radial-gradient(circle,#fff,rgba(124,196,174,.14) 78%);
+  box-shadow:0 10px 40px rgba(47,127,149,.14);
 }
-.score-ring::before{content:"";position:absolute;inset:8px;border:1px dashed rgba(168,58,44,.4);border-radius:50%}
-#scoreNum{font-size:58px;color:var(--cinnabar)}
+.score-ring::before{content:"";position:absolute;inset:8px;border:1.5px dashed rgba(47,127,149,.4);border-radius:50%}
+#scoreNum{font-size:58px;color:var(--azure)}
 .score-ring small{color:var(--ink-soft);letter-spacing:.3em;margin-top:2px}
-#levelName{font-size:30px;color:var(--cinnabar);letter-spacing:.15em;margin:10px 0 6px}
+#levelName{font-size:30px;color:var(--azure);letter-spacing:.15em;margin:10px 0 6px}
 #levelDesc{color:var(--ink-soft);line-height:2;max-width:540px;margin:0 auto}
 #scoreNote{color:var(--ink-faint);font-size:13.5px;margin-top:16px;line-height:2}
 .res-tabs{display:flex;justify-content:center;gap:10px;margin:38px 0 20px;flex-wrap:wrap}
 .res-tabs button{
-  background:rgba(255,255,255,.55);border:1px solid var(--line);color:var(--ink-soft);padding:8px 24px;border-radius:20px;
+  background:rgba(255,255,255,.7);border:1px solid var(--line);color:var(--ink-soft);padding:8px 24px;border-radius:20px;
   cursor:pointer;font-family:inherit;font-size:14.5px;letter-spacing:.1em;
 }
-.res-tabs button.on{border-color:var(--cinnabar);color:var(--cinnabar);background:rgba(168,58,44,.07)}
+.res-tabs button.on{border-color:var(--azure);color:var(--azure);background:rgba(47,127,149,.07)}
 .wrong-card{
-  text-align:left;border:1px solid var(--line);border-radius:8px;padding:24px 26px;margin-bottom:16px;
-  background:var(--card);box-shadow:0 4px 18px rgba(90,75,50,.08);
+  text-align:left;border:1px solid var(--line);border-radius:14px;padding:24px 26px;margin-bottom:16px;
+  background:var(--card);box-shadow:0 4px 18px rgba(47,127,149,.07);
 }
-.wrong-card.right{border-color:rgba(76,99,83,.5)}
+.wrong-card.right{border-color:rgba(77,162,139,.5)}
 .wc-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px}
-.wc-num{color:var(--cinnabar);font-size:17px}
+.wc-num{color:var(--azure);font-size:17px}
 .wc-q{font-size:15.5px;line-height:1.9;margin-bottom:14px}
 .wc-row{font-size:14.5px;line-height:2;margin-bottom:10px}
-.wc-row b{color:var(--cinnabar)}
-.wc-row .mine{color:var(--pine)}
-.wc-row .correct{color:var(--cinnabar)}
+.wc-row b{color:var(--azure)}
+.wc-row .mine{color:var(--teal)}
+.wc-row .correct{color:var(--azure)}
 .wc-analysis{
-  border-left:4px solid var(--gold);padding:12px 16px;background:rgba(168,131,79,.08);
-  color:var(--ink-soft);font-size:14px;line-height:2;margin-bottom:14px;border-radius:0 6px 6px 0;
+  border-left:4px solid var(--teal);padding:12px 16px;background:rgba(47,127,149,.05);
+  color:var(--ink-soft);font-size:14px;line-height:2;margin-bottom:14px;border-radius:0 10px 10px 0;
 }
 .grade-btns{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
 .grade-btns button{
-  border:1px solid var(--line);background:rgba(255,255,255,.6);color:var(--ink-soft);padding:6px 16px;border-radius:16px;
+  border:1px solid var(--line);background:rgba(255,255,255,.7);color:var(--ink-soft);padding:6px 16px;border-radius:16px;
   cursor:pointer;font-family:inherit;font-size:13.5px;
 }
-.grade-btns button.on{border-color:var(--pine);color:#f2ead8;background:var(--pine)}
+.grade-btns button.on{border-color:transparent;color:#fff;background:linear-gradient(135deg,var(--azure),var(--teal))}
 .grade-suggest{color:var(--ink-faint);font-size:13px;margin-right:6px}
-#confirmModal{position:fixed;inset:0;z-index:60;background:rgba(60,52,38,.5);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;padding:20px}
+#confirmModal{position:fixed;inset:0;z-index:60;background:rgba(220,238,235,.65);backdrop-filter:blur(5px);display:flex;align-items:center;justify-content:center;padding:20px}
 #confirmModal .box{
-  background:var(--paper);border:1px solid var(--gold);border-radius:8px;max-width:460px;width:100%;
-  padding:34px;text-align:center;box-shadow:0 20px 60px rgba(50,40,25,.35);
+  background:var(--paper);border:1px solid var(--teal);border-radius:16px;max-width:460px;width:100%;
+  padding:34px;text-align:center;box-shadow:0 20px 60px rgba(47,127,149,.22);
 }
 #confirmModal p{line-height:2.1;margin-bottom:8px}
-#missList{max-height:160px;overflow-y:auto;color:var(--cinnabar);font-size:14px;margin:10px 0;line-height:2}
+#missList{max-height:160px;overflow-y:auto;color:var(--azure-d);font-size:14px;margin:10px 0;line-height:2}
 .toast{
   position:fixed;top:24px;left:50%;transform:translateX(-50%);z-index:70;
-  background:var(--card);border:1px solid var(--cinnabar);color:var(--cinnabar);
+  background:var(--card);border:1px solid var(--azure);color:var(--azure);
   padding:10px 28px;border-radius:24px;font-size:14.5px;letter-spacing:.05em;
-  box-shadow:0 6px 20px rgba(90,75,50,.2);animation:fadeup .3s ease;
+  box-shadow:0 6px 20px rgba(47,127,149,.18);animation:fadeup .3s ease;
 }
 @keyframes fadeup{from{opacity:0;transform:translate(-50%,-10px)}to{opacity:1;transform:translate(-50%,0)}}
-@media (max-width:600px){.q-card{padding:24px 18px}.dot{width:29px;height:29px;font-size:11px}.ink-mark{font-size:44px}}
+@media (max-width:600px){.q-card{padding:26px 18px}.dot{width:29px;height:29px;font-size:11px}.wind-mark{width:64px}}
 </style>
 </head>
 <body>
 
-<!-- ======== 水墨山水背景（手绘SVG） ======== -->
-<svg id="inkbg" width="100%" height="100%" preserveAspectRatio="xMidYMax slice" viewBox="0 0 1440 900">
+<!-- ======== 丹青青绿山水 + 祥云 + 风 ======== -->
+<svg id="danbg" width="100%" height="100%" preserveAspectRatio="xMidYMax slice" viewBox="0 0 1440 900">
   <defs>
-    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#e8e0cb"/><stop offset=".55" stop-color="#f2ead8"/><stop offset="1" stop-color="#f2ead8"/>
+    <linearGradient id="sky2" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff"/><stop offset=".6" stop-color="#f2f9f7"/><stop offset="1" stop-color="#e8f3f0"/>
     </linearGradient>
-    <filter id="blur6"><feGaussianBlur stdDeviation="6"/></filter>
-    <filter id="blur14"><feGaussianBlur stdDeviation="14"/></filter>
-    <filter id="paperNoise">
-      <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" result="n"/>
-      <feColorMatrix in="n" type="matrix" values="0 0 0 0 0.55  0 0 0 0 0.5  0 0 0 0 0.42  0 0 0 0.05 0"/>
-      <feComposite operator="over" in2="SourceGraphic"/>
-    </filter>
+    <linearGradient id="mFar" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#9fc9c0" stop-opacity=".5"/><stop offset="1" stop-color="#c8e2dc" stop-opacity=".4"/>
+    </linearGradient>
+    <linearGradient id="mMid" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#5aa892" stop-opacity=".55"/><stop offset="1" stop-color="#8cc4b2" stop-opacity=".45"/>
+    </linearGradient>
+    <linearGradient id="mNear" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#357f8e" stop-opacity=".6"/><stop offset="1" stop-color="#5fa8a0" stop-opacity=".5"/>
+    </linearGradient>
+    <linearGradient id="windGrad" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#2f7f95" stop-opacity="0"/><stop offset=".5" stop-color="#2f7f95" stop-opacity=".5"/><stop offset="1" stop-color="#2f7f95" stop-opacity="0"/>
+    </linearGradient>
+    <filter id="soft"><feGaussianBlur stdDeviation="10"/></filter>
+    <filter id="softer"><feGaussianBlur stdDeviation="20"/></filter>
   </defs>
-  <rect width="1440" height="900" fill="url(#sky)"/>
-  <rect width="1440" height="900" fill="#f2ead8" filter="url(#paperNoise)" opacity=".5"/>
-  <!-- 日轮 -->
-  <circle cx="1120" cy="150" r="64" fill="#c2503e" opacity=".18" filter="url(#blur14)"/>
-  <circle cx="1120" cy="150" r="46" fill="#c2503e" opacity=".22" filter="url(#blur6)"/>
-  <!-- 远山 -->
-  <path d="M0,560 Q180,430 330,520 T640,470 Q780,400 900,500 T1240,450 Q1360,410 1440,490 L1440,900 L0,900 Z"
-        fill="#4c6353" opacity=".16" filter="url(#blur14)"/>
-  <!-- 中山 -->
-  <path d="M0,660 Q220,520 420,630 T820,580 Q1000,500 1180,620 T1440,580 L1440,900 L0,900 Z"
-        fill="#3d5346" opacity=".22" filter="url(#blur6)"/>
-  <!-- 近山 -->
-  <path d="M0,780 Q260,640 520,760 Q700,830 900,740 Q1150,630 1440,780 L1440,900 L0,900 Z"
-        fill="#31443a" opacity=".3" filter="url(#blur6)"/>
-  <!-- 山脚墨石 -->
-  <path d="M0,860 Q400,790 760,850 Q1100,900 1440,840 L1440,900 L0,900 Z" fill="#2b3b32" opacity=".4"/>
-  <!-- 云雾 -->
-  <ellipse cx="300" cy="640" rx="260" ry="36" fill="#f2ead8" opacity=".75" filter="url(#blur14)"/>
-  <ellipse cx="1000" cy="600" rx="320" ry="42" fill="#f2ead8" opacity=".7" filter="url(#blur14)"/>
-  <ellipse cx="680" cy="760" rx="380" ry="40" fill="#f2ead8" opacity=".6" filter="url(#blur14)"/>
-  <!-- 松（右下） -->
-  <g transform="translate(1250,690)" opacity=".55">
-    <path d="M40,210 Q30,120 55,60 Q62,40 58,20" stroke="#31443a" stroke-width="7" fill="none" stroke-linecap="round"/>
-    <path d="M50,90 Q90,70 130,78 M46,130 Q10,112 -30,120 M52,55 Q85,35 120,42" stroke="#31443a" stroke-width="4" fill="none" stroke-linecap="round"/>
-    <g fill="#3d5346">
-      <ellipse cx="135" cy="70" rx="46" ry="14" transform="rotate(-8 135 70)"/>
-      <ellipse cx="125" cy="38" rx="40" ry="12" transform="rotate(-6 125 38)"/>
-      <ellipse cx="-38" cy="112" rx="44" ry="13" transform="rotate(6 -38 112)"/>
-      <ellipse cx="60" cy="14" rx="34" ry="10"/>
-    </g>
+  <rect width="1440" height="900" fill="url(#sky2)"/>
+
+  <path d="M0,540 Q200,400 380,510 Q520,590 700,500 Q880,410 1060,520 Q1240,610 1440,500 L1440,900 L0,900 Z" fill="url(#mFar)" filter="url(#softer)"/>
+  <path d="M0,660 Q180,540 360,640 Q520,720 700,630 Q900,530 1120,650 Q1300,740 1440,640 L1440,900 L0,900 Z" fill="url(#mMid)" filter="url(#soft)"/>
+  <path d="M0,790 Q240,660 480,780 Q680,860 900,760 Q1150,650 1440,790 L1440,900 L0,900 Z" fill="url(#mNear)" filter="url(#soft)"/>
+  <ellipse cx="340" cy="610" rx="270" ry="30" fill="#ffffff" opacity=".85" filter="url(#soft)"/>
+  <ellipse cx="1050" cy="580" rx="330" ry="34" fill="#ffffff" opacity=".8" filter="url(#soft)"/>
+  <ellipse cx="690" cy="740" rx="390" ry="32" fill="#ffffff" opacity=".7" filter="url(#soft)"/>
+
+  <g stroke="url(#windGrad)" fill="none" stroke-linecap="round">
+    <path class="gust g1" d="M-60,180 C240,130 460,220 740,170 S1200,120 1520,180" stroke-width="12"/>
+    <path class="gust g2" d="M-60,300 C200,260 500,340 780,295 S1240,250 1520,310" stroke-width="8"/>
+    <path class="gust g3" d="M-60,110 C300,70 520,150 820,105 S1260,60 1520,120" stroke-width="6"/>
   </g>
-  <!-- 竹（左上） -->
-  <g transform="translate(30,-10)" opacity=".5">
-    <path d="M60,0 Q58,90 68,190" stroke="#4c6353" stroke-width="6" fill="none"/>
-    <path d="M100,0 Q104,80 96,160" stroke="#4c6353" stroke-width="5" fill="none"/>
-    <g fill="#5a7a66">
-      <path d="M64,40 q34,-16 52,-8 q-26,16 -52,8Z"/><path d="M66,70 q-30,-14 -48,-6 q24,14 48,6Z"/>
-      <path d="M98,30 q30,-14 46,-6 q-22,14 -46,6Z"/><path d="M66,120 q32,-14 50,-6 q-25,15 -50,6Z"/>
-      <path d="M97,100 q-28,-13 -44,-5 q22,13 44,5Z"/>
-    </g>
+
+  <g class="lucky c1" transform="translate(150,120)" stroke="#2f7f95" fill="#ffffff" fill-opacity=".85">
+    <path d="M6,34 a10,10 0 0 1 8,-16 a13,13 0 0 1 24,-4 a10,10 0 0 1 16,6 h26 a9,9 0 0 1 0,18 h-66 a10,10 0 0 1 -8,-4 z" stroke-width="2"/>
+    <path d="M18,32 a8,8 0 1 1 10,-12 a6,6 0 1 1 10,8" fill="none" stroke-width="1.6" opacity=".6"/>
   </g>
-  <!-- 飞鹰 -->
-  <g id="eagle" opacity=".7">
-    <path d="M0,0 Q14,-10 26,-4 Q40,-14 52,-6 Q38,-2 30,4 Q14,8 0,0 Z" fill="#2b3b32" transform="scale(1.6)"/>
+  <g class="lucky c2" transform="translate(1080,90) scale(1.3)" stroke="#4da28b" fill="#ffffff" fill-opacity=".9">
+    <path d="M6,34 a10,10 0 0 1 8,-16 a13,13 0 0 1 24,-4 a10,10 0 0 1 16,6 h26 a9,9 0 0 1 0,18 h-66 a10,10 0 0 1 -8,-4 z" stroke-width="2"/>
+    <path d="M18,32 a8,8 0 1 1 10,-12 a6,6 0 1 1 10,8" fill="none" stroke-width="1.6" opacity=".6"/>
   </g>
-  <animateMotion xlink:href="#eagle" dur="38s" repeatCount="indefinite"
-    path="M-100,220 Q400,120 800,200 T1600,140"/>
+  <g class="lucky c3" transform="translate(620,240) scale(.85)" stroke="#5fa8a0" fill="#ffffff" fill-opacity=".8">
+    <path d="M6,34 a10,10 0 0 1 8,-16 a13,13 0 0 1 24,-4 a10,10 0 0 1 16,6 h26 a9,9 0 0 1 0,18 h-66 a10,10 0 0 1 -8,-4 z" stroke-width="2"/>
+  </g>
+  <g class="lucky c4" transform="translate(1240,300) scale(.7)" stroke="#2f7f95" fill="#ffffff" fill-opacity=".75">
+    <path d="M6,34 a10,10 0 0 1 8,-16 a13,13 0 0 1 24,-4 a10,10 0 0 1 16,6 h26 a9,9 0 0 1 0,18 h-66 a10,10 0 0 1 -8,-4 z" stroke-width="2.2"/>
+  </g>
+  <g class="lucky c5" transform="translate(80,380) scale(.75)" stroke="#4da28b" fill="#ffffff" fill-opacity=".8">
+    <path d="M6,34 a10,10 0 0 1 8,-16 a13,13 0 0 1 24,-4 a10,10 0 0 1 16,6 h26 a9,9 0 0 1 0,18 h-66 a10,10 0 0 1 -8,-4 z" stroke-width="2.2"/>
+  </g>
+
+  <g id="eagle2" opacity=".75">
+    <path d="M0,0 Q14,-10 26,-4 Q40,-14 52,-6 Q38,-2 30,4 Q14,8 0,0 Z" fill="#2f7f95" transform="scale(1.6)"/>
+  </g>
+  <animateMotion xlink:href="#eagle2" dur="30s" repeatCount="indefinite"
+    path="M-100,240 Q400,140 800,220 T1600,150"/>
 </svg>
-<canvas id="dust"></canvas>
+<canvas id="breeze"></canvas>
+
+<style>
+.lucky{animation:drift 26s ease-in-out infinite alternate}
+.c2{animation-duration:32s;animation-delay:-8s}
+.c3{animation-duration:22s;animation-delay:-4s}
+.c4{animation-duration:28s;animation-delay:-14s}
+.c5{animation-duration:24s;animation-delay:-10s}
+@keyframes drift{from{transform:translateX(0)}to{transform:translateX(70px)}}
+.gust{animation:gust 9s ease-in-out infinite alternate}
+.g2{animation-duration:12s;animation-delay:-4s}
+.g3{animation-duration:7s;animation-delay:-2s}
+@keyframes gust{from{transform:translateX(-70px);opacity:.5}to{transform:translateX(70px);opacity:1}}
+</style>
 
 <!-- ======== 开屏 ======== -->
 <div id="intro" class="screen">
-  <div class="seal"><span>鹰</span></div>
+  <div class="medal">
+    <svg viewBox="0 0 110 110">
+      <g class="spin">
+        <path d="M55,55 m0,-4 a10,10 0 1 1 -10,10 a18,18 0 1 0 18,-18 a26,26 0 1 1 -26,26 a34,34 0 1 0 34,-34"
+              fill="none" stroke="#2f7f95" stroke-width="3" stroke-linecap="round"/>
+      </g>
+      <circle cx="55" cy="55" r="50" fill="none" stroke="#4da28b" stroke-width="1.6" opacity=".55" stroke-dasharray="4 6"/>
+      <circle cx="55" cy="55" r="42" fill="none" stroke="#2f7f95" stroke-width="1" opacity=".3"/>
+    </svg>
+  </div>
   <h1 class="title">雪鹰<em>领主</em></h1>
   <div class="subtitle">终 极 考 验 · 攻 略 系 统 全 卷 测 试</div>
-  <svg class="cloud-div" viewBox="0 0 400 40"><g fill="none" stroke="#a8834f" stroke-width="1.6" opacity=".8">
+  <svg class="cloud-div" viewBox="0 0 400 40"><g fill="none" stroke="#4da28b" stroke-width="1.6" opacity=".85">
     <path d="M10,20 h60 q10,-12 22,0 h40 q-8,-8 -16,0 M150,20 h60 q10,-12 22,0 h40 q-8,-8 -16,0 M290,20 h60 q10,-12 22,0 h20"/>
-    <circle cx="132" cy="20" r="2.4" fill="#a8834f" stroke="none"/><circle cx="272" cy="20" r="2.4" fill="#a8834f" stroke="none"/>
+    <circle cx="132" cy="20" r="2.4" fill="#4da28b" stroke="none"/><circle cx="272" cy="20" r="2.4" fill="#4da28b" stroke="none"/>
   </g></svg>
   <p class="intro-text">【系统提示】检测到宿主已五刷《雪鹰领主》，阅读掌握度极高，现启动全卷终极考验模式！<br>本测试共<b>二百题</b>，覆盖全书九篇，题型含简答、单选、多选。<br>简答题按要点<b>模糊给分</b>，不苛求精准名字与数字；每题半分，满分百分。<br>须全部作答完毕，方可交卷结算。</p>
-  <div class="scroll-table"><table>
+  <div class="rank-table"><table>
     <tr><td>0 ~ 20 分</td><td>路人甲</td><td>你可能只看了开头就弃文了……</td></tr>
     <tr><td>21 ~ 40 分</td><td>普通读者</td><td>看过但没太走心，很多细节记不清了</td></tr>
     <tr><td>41 ~ 70 分</td><td>资深书迷</td><td>五刷老粉的实力，但冷门篇章可能跳过了</td></tr>
@@ -297,10 +307,10 @@ textarea:disabled{opacity:.75}
 <div id="navPanel" class="hidden">
   <div class="inner">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px">
-      <span style="color:var(--cinnabar);letter-spacing:.2em;font-size:17px">九 篇 题 目 一 览</span>
+      <span style="color:var(--azure);letter-spacing:.2em;font-size:17px">九 篇 题 目 一 览</span>
       <button class="btn small ghost" id="navClose">关 闭</button>
     </div>
-    <div class="legend"><i style="background:var(--pine)"></i>已作答<i style="border:1px solid rgba(90,75,50,.4)"></i>未作答</div>
+    <div class="legend"><i style="background:linear-gradient(135deg,var(--azure),var(--teal))"></i>已作答<i style="border:1px solid rgba(47,127,149,.4)"></i>未作答</div>
     <div id="navBody"></div>
   </div>
 </div>
@@ -308,7 +318,7 @@ textarea:disabled{opacity:.75}
 <!-- ======== 成绩 ======== -->
 <div id="result" class="screen hidden">
   <div class="subtitle" style="margin-top:34px;color:var(--ink-soft)">考 验 结 果 · 已 结 算</div>
-  <svg class="cloud-div" viewBox="0 0 400 40" style="margin:16px auto 0"><g fill="none" stroke="#a8834f" stroke-width="1.6" opacity=".8">
+  <svg class="cloud-div" viewBox="0 0 400 40" style="margin:16px auto 0"><g fill="none" stroke="#4da28b" stroke-width="1.6" opacity=".85">
     <path d="M10,20 h60 q10,-12 22,0 h40 q-8,-8 -16,0 M150,20 h60 q10,-12 22,0 h40 q-8,-8 -16,0 M290,20 h60 q10,-12 22,0 h20"/>
   </g></svg>
   <div class="score-ring"><div id="scoreNum">0</div><small>分 / 百分</small></div>
@@ -325,7 +335,7 @@ textarea:disabled{opacity:.75}
 
 <div id="confirmModal" class="hidden">
   <div class="box">
-    <p style="color:var(--cinnabar);font-size:19px;letter-spacing:.2em">确 认 交 卷 ？</p>
+    <p style="color:var(--azure);font-size:19px;letter-spacing:.2em">确 认 交 卷 ？</p>
     <p id="confirmText" style="color:var(--ink-soft);font-size:14.5px"></p>
     <div id="missList"></div>
     <div style="display:flex;gap:12px;justify-content:center;margin-top:16px">
@@ -341,26 +351,25 @@ const QS = DATA.questions;
 const N = QS.length;
 const HALF = 0.5;
 
-/* ---------- 飞尘粒子 ---------- */
+/* ---------- 风气流粒子（横向流动） ---------- */
 (function(){
-  const c = document.getElementById('dust'), ctx = c.getContext('2d');
+  const c = document.getElementById('breeze'), ctx = c.getContext('2d');
   let ps = [];
   function resize(){ c.width = innerWidth; c.height = innerHeight;
-    ps = Array.from({length:70},()=>({x:Math.random()*c.width,y:Math.random()*c.height,
-      r:Math.random()*1.6+.5,tw:Math.random()*6.28,sp:Math.random()*.012+.003,
-      vx:(Math.random()-.5)*.12,vy:-(Math.random()*.18+.05),
-      col:Math.random()<.5?'168,131,79':'76,99,83'}));
+    ps = Array.from({length:60},()=>({x:Math.random()*c.width,y:Math.random()*c.height,
+      len:Math.random()*26+10, r:Math.random()*1.4+.4, sp:Math.random()*.7+.3,
+      tw:Math.random()*6.28, col:Math.random()<.5?'47,127,149':'77,162,139'}));
   }
   resize(); addEventListener('resize',resize);
   (function loop(){
     ctx.clearRect(0,0,c.width,c.height);
     for(const p of ps){
-      p.tw += p.sp; p.x += p.vx; p.y += p.vy;
-      if(p.y < -10){ p.y = c.height+10; p.x = Math.random()*c.width; }
-      if(p.x < -10) p.x = c.width+10; if(p.x > c.width+10) p.x = -10;
-      ctx.globalAlpha = .12 + Math.abs(Math.sin(p.tw))*.3;
-      ctx.fillStyle = 'rgb(' + p.col + ')';
-      ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,6.28); ctx.fill();
+      p.x += p.sp; p.tw += .02;
+      if(p.x - p.len > c.width){ p.x = -p.len; p.y = Math.random()*c.height; }
+      const a = .12 + Math.abs(Math.sin(p.tw))*.25;
+      ctx.strokeStyle = 'rgba(' + p.col + ',' + a + ')';
+      ctx.lineWidth = p.r; ctx.lineCap = 'round';
+      ctx.beginPath(); ctx.moveTo(p.x,p.y); ctx.lineTo(p.x+p.len, p.y - p.len*.15); ctx.stroke();
     }
     requestAnimationFrame(loop);
   })();
@@ -368,7 +377,7 @@ const HALF = 0.5;
 
 /* ---------- 状态 ---------- */
 let answers = {}, cur = 0, graded = false, saGrade = {};
-const STORE = 'xy_exam_v2';
+const STORE = 'xy_exam_v3';
 function save(){ try{ localStorage.setItem(STORE, JSON.stringify({answers, cur})); }catch(e){} }
 function load(){ try{ const d = JSON.parse(localStorage.getItem(STORE)); if(d){ answers = d.answers||{}; cur = d.cur||0; } }catch(e){} }
 function isAnswered(q){
@@ -403,18 +412,19 @@ function renderQ(){
   if(graded){
     const g = gradeOne(q);
     const mark = g.correct
-      ? '<span style="color:var(--pine)">✔ 回答正确（+' + g.score + ' 分）</span>'
-      : '<span style="color:var(--cinnabar)">✘ 回答有误</span>';
+      ? '<span style="color:var(--teal)">✔ 回答正确（+' + g.score + ' 分）</span>'
+      : '<span style="color:var(--azure-d)">✘ 回答有误</span>';
     body += '<div style="margin-top:22px;border-top:1px dashed var(--line);padding-top:16px">'
          +  '<div style="margin-bottom:10px;font-size:15px">' + mark + '</div>'
-         +  '<div class="wc-analysis"><b style="color:var(--cinnabar)">【参考答案与解析】</b><br>' + esc(q.analysis) + '</div></div>';
+         +  '<div class="wc-analysis"><b style="color:var(--azure)">【参考答案与解析】</b><br>' + esc(q.analysis) + '</div></div>';
     if(q.type==='简答题'){
       body += '<div class="grade-btns" style="margin-top:10px"><span class="grade-suggest">模糊判分建议 ' + g.score + ' 分，可自评调整：</span>'
            +  [0.5,0.25,0].map(v=>'<button data-g="' + v + '" class="' + (saGrade[q.num]===v?'on':'') + '">' + (v===0.5?'答出要点 0.5分':v===0.25?'部分答出 0.25分':'未答出 0分') + '</button>').join('')
            +  '</div>';
     }
   }
-  body += '<div class="ink-mark">墨</div>';
+  body += '<svg class="wind-mark" viewBox="0 0 90 40"><g fill="none" stroke="#2f7f95" stroke-width="2" stroke-linecap="round">'
+       +  '<path d="M4,12 h44 q10,-10 18,0 q-8,8 -16,2"/><path d="M14,26 h52 q8,-8 14,0"/></g></svg>';
   $('qCard').innerHTML = body;
   bindQEvents(q);
   updateProgress();
@@ -510,14 +520,14 @@ function renderResult(){
     else mine = (answers[q.num]&&answers[q.num].length) ? answers[q.num].map(k=>k+'. '+esc(q.options[k])).join('；') : '（未作答）';
     let html = '<div class="wrong-card' + (g.correct?' right':'') + '">';
     html += '<div class="wc-head"><span class="wc-num">第 ' + q.num + ' 题</span><span class="badge' + (q.type==='简答题'?' jade':'') + '">' + q.type + '</span>'
-         +  '<span style="margin-left:auto;color:' + (g.correct?'var(--pine)':'var(--cinnabar)') + ';font-size:14px">'
+         +  '<span style="margin-left:auto;color:' + (g.correct?'var(--teal)':'var(--azure-d)') + ';font-size:14px">'
          +  (g.correct?'✔ +'+g.score+' 分':'✘ 得 0 分') + '</span></div>';
     html += '<div class="wc-q">' + esc(q.question) + '</div>';
     html += '<div class="wc-row"><b>你的回答：</b><span class="mine">' + mine + '</span></div>';
     if(q.type!=='简答题'){
       html += '<div class="wc-row"><b>正确答案：</b><span class="correct">' + (q.ans||'').split('').map(k=>k+'. '+esc(q.options[k])).join('；') + '</span></div>';
     }
-    html += '<div class="wc-analysis"><b style="color:var(--cinnabar)">【参考答案与解析】</b><br>' + esc(q.analysis) + '</div>';
+    html += '<div class="wc-analysis"><b style="color:var(--azure)">【参考答案与解析】</b><br>' + esc(q.analysis) + '</div>';
     if(q.type==='简答题'){
       html += '<div class="grade-btns"><span class="grade-suggest">模糊判分建议 ' + g.score + ' 分，自评：</span>'
            +  [0.5,0.25,0].map(v=>'<button data-n="' + q.num + '" data-g="' + v + '" class="' + ((q.num in saGrade && saGrade[q.num]===v)?'on':'') + '">' + (v===0.5?'答出要点 0.5分':v===0.25?'部分答出 0.25分':'未答出 0分') + '</button>').join('')
@@ -526,7 +536,7 @@ function renderResult(){
     html += '<div style="margin-top:12px"><button class="btn small ghost" data-jump="' + QS.indexOf(q) + '">↩ 跳转到原题</button></div>';
     html += '</div>';
     return html;
-  }).join('') || '<p style="color:var(--pine);text-align:center;padding:30px;font-size:17px">恭喜，天道酬勤，全卷无一错题！</p>';
+  }).join('') || '<p style="color:var(--teal);text-align:center;padding:30px;font-size:17px">恭喜，乘风直上，全卷无一错题！</p>';
   $('resBody').querySelectorAll('[data-jump]').forEach(b=>b.addEventListener('click', ()=>{
     cur = parseInt(b.dataset.jump); show('exam'); renderQ();
     toast('已定位到第 ' + QS[cur].num + ' 题');
@@ -569,7 +579,7 @@ $('navClose').addEventListener('click', ()=>$('navPanel').classList.add('hidden'
 $('submitBtn').addEventListener('click', ()=>{
   const d = countDone();
   if(d < N){
-    $('confirmText').innerHTML = '尚有 <b style="color:var(--cinnabar)">' + (N-d) + '</b> 题未作答。点击下方题号可立即前往补答：';
+    $('confirmText').innerHTML = '尚有 <b style="color:var(--azure)">' + (N-d) + '</b> 题未作答。点击下方题号可立即前往补答：';
     const miss = QS.filter(q=>!isAnswered(q));
     $('missList').innerHTML = miss.map(q=>'<span style="cursor:pointer;text-decoration:underline" data-m="' + QS.indexOf(q) + '">第' + q.num + '题</span>').join('　');
     $('missList').querySelectorAll('[data-m]').forEach(el=>el.addEventListener('click', ()=>{
