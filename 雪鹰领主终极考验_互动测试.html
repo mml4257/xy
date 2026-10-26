@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>雪鹰领主 · 终极考验</title>
+<style>
+:root{
+  --bg:#0b0e17; --bg2:#111625; --ink:#e8dfc8; --dim:#9a917c;
+  --gold:#d4af6a; --gold2:#f0d9a8; --jade:#7fb8a4; --red:#c05555;
+  --line:rgba(212,175,106,.25);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+  background:var(--bg); color:var(--ink);
+  font-family:"Kaiti SC","STKaiti","KaiTi","Noto Serif SC",serif;
+  min-height:100vh; overflow-x:hidden;
+}
+body::before{ /* 星云底纹 */
+  content:""; position:fixed; inset:0; pointer-events:none; z-index:0;
+  background:
+    radial-gradient(ellipse 80% 50% at 50% -10%, rgba(80,110,180,.18), transparent),
+    radial-gradient(ellipse 60% 40% at 80% 110%, rgba(127,184,164,.10), transparent);
+}
+#stars{position:fixed;inset:0;z-index:0;pointer-events:none}
+.screen{position:relative;z-index:1;max-width:860px;margin:0 auto;padding:24px 16px 80px}
+.hidden{display:none!important}
+
+/* ---------- 开屏 ---------- */
+#intro{min-height:100vh;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center}
+.seal{
+  width:74px;height:74px;border:2px solid var(--gold);color:var(--gold);
+  display:flex;align-items:center;justify-content:center;font-size:34px;
+  transform:rotate(45deg);margin-bottom:38px;box-shadow:0 0 24px rgba(212,175,106,.25);
+}
+.seal span{transform:rotate(-45deg)}
+h1.title{
+  font-size:clamp(34px,7vw,58px);letter-spacing:.18em;color:var(--gold2);
+  text-shadow:0 0 30px rgba(212,175,106,.35);font-weight:700;
+}
+.subtitle{margin-top:14px;color:var(--dim);letter-spacing:.35em;font-size:15px}
+.divider{width:220px;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);margin:34px auto}
+.intro-text{max-width:560px;line-height:2;color:var(--ink);opacity:.9;font-size:15.5px}
+.rank-table{margin:34px auto 0;border-collapse:collapse;font-size:14.5px;min-width:min(520px,92vw)}
+.rank-table td{border:1px solid var(--line);padding:9px 16px;text-align:left}
+.rank-table td:first-child{color:var(--gold);white-space:nowrap}
+.rank-table td:last-child{color:var(--dim);font-size:13.5px}
+.btn{
+  display:inline-block;border:1px solid var(--gold);color:var(--gold2);
+  background:linear-gradient(180deg,rgba(212,175,106,.12),rgba(212,175,106,.03));
+  padding:13px 52px;font-size:18px;letter-spacing:.4em;text-indent:.4em;cursor:pointer;
+  font-family:inherit;border-radius:3px;transition:.25s;margin-top:44px;
+}
+.btn:hover{background:var(--gold);color:#1a1408;box-shadow:0 0 30px rgba(212,175,106,.5)}
+.btn.small{padding:7px 20px;font-size:14px;letter-spacing:.15em;text-indent:.15em;margin:0}
+.btn.ghost{border-color:var(--line);color:var(--dim)}
+
+/* ---------- 答题 ---------- */
+.topbar{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:14px}
+#progressWrap{flex:1;min-width:180px;height:6px;background:rgba(255,255,255,.07);border-radius:3px;overflow:hidden}
+#progressBar{height:100%;width:0%;background:linear-gradient(90deg,var(--jade),var(--gold));transition:width .3s}
+#progressText{color:var(--dim);font-size:13.5px;white-space:nowrap}
+.sec-label{color:var(--gold);font-size:14px;letter-spacing:.2em;margin-bottom:10px}
+.q-card{
+  background:linear-gradient(180deg,var(--bg2),rgba(17,22,37,.6));
+  border:1px solid var(--line);border-radius:8px;padding:30px 28px;min-height:340px;
+}
+.q-head{display:flex;align-items:baseline;gap:12px;margin-bottom:18px;flex-wrap:wrap}
+.q-num{font-size:26px;color:var(--gold2)}
+.badge{font-size:12.5px;border:1px solid var(--line);color:var(--gold);padding:2px 10px;border-radius:20px;letter-spacing:.1em}
+.badge.jade{color:var(--jade);border-color:rgba(127,184,164,.4)}
+.q-text{font-size:18px;line-height:1.9;margin-bottom:22px}
+.opt{
+  display:block;border:1px solid rgba(255,255,255,.09);border-radius:6px;
+  padding:12px 16px;margin-bottom:10px;cursor:pointer;transition:.2s;font-size:16px;line-height:1.6;
+}
+.opt:hover{border-color:var(--gold);background:rgba(212,175,106,.06)}
+.opt.sel{border-color:var(--gold);background:rgba(212,175,106,.12);color:var(--gold2)}
+.opt .key{color:var(--gold);margin-right:10px}
+textarea{
+  width:100%;min-height:150px;background:rgba(0,0,0,.3);border:1px solid var(--line);
+  border-radius:6px;color:var(--ink);padding:14px;font-size:16px;font-family:inherit;line-height:1.8;resize:vertical;
+}
+textarea:focus{outline:none;border-color:var(--gold)}
+textarea:disabled{opacity:.7}
+.nav-row{display:flex;justify-content:space-between;align-items:center;margin-top:20px;gap:10px}
+
+/* 题号导航 */
+#navBtn{position:relative}
+#navPanel{
+  position:fixed;inset:0;z-index:50;background:rgba(5,7,12,.92);backdrop-filter:blur(4px);
+  overflow-y:auto;padding:30px 16px 60px;
+}
+#navPanel .inner{max-width:860px;margin:0 auto}
+.nav-sec{margin-bottom:22px}
+.nav-sec h3{color:var(--gold);font-size:15px;margin-bottom:10px;letter-spacing:.1em}
+.dot{
+  display:inline-flex;width:34px;height:34px;margin:3px;align-items:center;justify-content:center;
+  border:1px solid rgba(255,255,255,.14);border-radius:4px;font-size:12.5px;cursor:pointer;color:var(--dim);
+  font-family:inherit;
+}
+.dot:hover{border-color:var(--gold)}
+.dot.done{background:rgba(127,184,164,.15);border-color:var(--jade);color:var(--jade)}
+.dot.cur{outline:2px solid var(--gold);color:var(--gold2)}
+.legend{color:var(--dim);font-size:13px;margin-bottom:16px}
+.legend i{display:inline-block;width:12px;height:12px;border-radius:2px;vertical-align:-1px;margin:0 6px 0 14px}
+
+/* ---------- 成绩 ---------- */
+#result{text-align:center}
+.score-ring{
+  width:190px;height:190px;border-radius:50%;margin:26px auto;position:relative;
+  border:1px solid var(--line);display:flex;flex-direction:column;align-items:center;justify-content:center;
+  background:radial-gradient(circle,rgba(212,175,106,.10),transparent 70%);
+  box-shadow:0 0 60px rgba(212,175,106,.15) inset,0 0 40px rgba(212,175,106,.12);
+}
+#scoreNum{font-size:56px;color:var(--gold2);text-shadow:0 0 24px rgba(212,175,106,.5)}
+.score-ring small{color:var(--dim);letter-spacing:.3em;margin-top:4px}
+#levelName{font-size:30px;color:var(--gold);letter-spacing:.15em;margin:8px 0 4px}
+#levelDesc{color:var(--dim);line-height:1.9;max-width:520px;margin:0 auto}
+#scoreNote{color:var(--dim);font-size:13px;margin-top:14px;line-height:1.8}
+.res-tabs{display:flex;justify-content:center;gap:10px;margin:36px 0 20px;flex-wrap:wrap}
+.res-tabs button{
+  background:none;border:1px solid var(--line);color:var(--dim);padding:8px 22px;border-radius:20px;
+  cursor:pointer;font-family:inherit;font-size:14.5px;letter-spacing:.1em;
+}
+.res-tabs button.on{border-color:var(--gold);color:var(--gold2);background:rgba(212,175,106,.1)}
+.wrong-card{
+  text-align:left;border:1px solid var(--line);border-radius:8px;padding:22px 24px;margin-bottom:16px;
+  background:var(--bg2);
+}
+.wrong-card.right{border-color:rgba(127,184,164,.4)}
+.wc-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+.wc-num{color:var(--gold2);font-size:17px}
+.wc-q{font-size:15.5px;line-height:1.8;color:var(--ink);margin-bottom:14px}
+.wc-row{font-size:14.5px;line-height:1.9;margin-bottom:10px}
+.wc-row b{color:var(--gold)}
+.wc-row .mine{color:var(--jade)}
+.wc-row .correct{color:var(--gold2)}
+.wc-analysis{
+  border-left:3px solid var(--gold);padding:10px 14px;background:rgba(212,175,106,.05);
+  color:var(--dim);font-size:14px;line-height:1.9;margin-bottom:14px;
+}
+.grade-btns{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.grade-btns button{
+  border:1px solid var(--line);background:none;color:var(--dim);padding:6px 16px;border-radius:16px;
+  cursor:pointer;font-family:inherit;font-size:13.5px;
+}
+.grade-btns button.on{border-color:var(--jade);color:var(--jade);background:rgba(127,184,164,.12)}
+.grade-suggest{color:var(--dim);font-size:13px;margin-right:6px}
+#confirmModal{
+  position:fixed;inset:0;z-index:60;background:rgba(5,7,12,.85);display:flex;align-items:center;justify-content:center;padding:20px;
+}
+#confirmModal .box{
+  background:var(--bg2);border:1px solid var(--gold);border-radius:8px;max-width:440px;width:100%;
+  padding:32px;text-align:center;
+}
+#confirmModal p{line-height:2;margin-bottom:8px}
+#missList{max-height:160px;overflow-y:auto;color:var(--red);font-size:14px;margin:10px 0;line-height:1.9}
+.toast{
+  position:fixed;top:24px;left:50%;transform:translateX(-50%);z-index:70;
+  background:rgba(20,16,8,.95);border:1px solid var(--gold);color:var(--gold2);
+  padding:10px 26px;border-radius:24px;font-size:14.5px;letter-spacing:.05em;
+  animation:fadeup .3s ease;
+}
+@keyframes fadeup{from{opacity:0;transform:translate(-50%,-10px)}to{opacity:1;transform:translate(-50%,0)}}
+.mist{position:fixed;border-radius:50%;background:radial-gradient(circle,rgba(200,220,255,.05),transparent);pointer-events:none;z-index:0}
+@media (max-width:600px){.q-card{padding:22px 16px}.dot{width:29px;height:29px;font-size:11px}}
+</style>
+</head>
+<body>
+<canvas id="stars"></canvas>
+
+<!-- 开屏 -->
+<div id="intro" class="screen">
+  <div class="seal"><span>鹰</span></div>
+  <h1 class="title">雪 鹰 领 主</h1>
+  <div class="subtitle">终 极 考 验 · 攻 略 系 统 全 卷 测 试</div>
+  <div class="divider"></div>
+  <p class="intro-text">【系统提示】检测到宿主已五刷《雪鹰领主》，阅读掌握度极高，现启动全卷终极考验模式！<br>本测试共二百题，覆盖全书九篇，题型含简答、单选、多选。<br>简答题按要点模糊给分，不苛求精准名字与数字；每题半分，满分百分。<br>须全部作答完毕，方可交卷结算。</p>
+  <table class="rank-table">
+    <tr><td>0 ~ 20 分</td><td>路人甲</td><td>你可能只看了开头就弃文了……</td></tr>
+    <tr><td>21 ~ 40 分</td><td>普通读者</td><td>看过但没太走心，很多细节记不清了</td></tr>
+    <tr><td>41 ~ 70 分</td><td>资深书迷</td><td>五刷老粉的实力，但冷门篇章可能跳过了</td></tr>
+    <tr><td>71 ~ 100 分</td><td>攻略系统认证 · 雪鹰领主大师</td><td>你对这部小说的理解已登峰造极！</td></tr>
+  </table>
+  <button class="btn" id="startBtn">进 入 考 验</button>
+</div>
+
+<!-- 答题 -->
+<div id="exam" class="screen hidden">
+  <div class="topbar">
+    <button class="btn small ghost" id="navBtn">☰ 题 目 导 航</button>
+    <div id="progressWrap"><div id="progressBar"></div></div>
+    <span id="progressText">0 / 200</span>
+  </div>
+  <div class="sec-label" id="secLabel"></div>
+  <div class="q-card" id="qCard"></div>
+  <div class="nav-row">
+    <button class="btn small ghost" id="prevBtn">← 上一题</button>
+    <span id="navHint" style="color:var(--dim);font-size:13px"></span>
+    <button class="btn small" id="nextBtn">下一题 →</button>
+  </div>
+  <div style="text-align:center;margin-top:34px">
+    <button class="btn" id="submitBtn">交 卷 结 算</button>
+  </div>
+</div>
+
+<!-- 题目导航面板 -->
+<div id="navPanel" class="hidden">
+  <div class="inner">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px">
+      <span style="color:var(--gold);letter-spacing:.2em">九 篇 题 目 一 览</span>
+      <button class="btn small ghost" id="navClose">关 闭</button>
+    </div>
+    <div class="legend"><i style="background:rgba(127,184,164,.4)"></i>已作答<i style="border:1px solid rgba(255,255,255,.3)"></i>未作答</div>
+    <div id="navBody"></div>
+  </div>
+</div>
+
+<!-- 成绩 -->
+<div id="result" class="screen hidden">
+  <div class="subtitle" style="margin-top:30px">考 验 结 果 · 已 结 算</div>
+  <div class="score-ring"><div id="scoreNum">0</div><small>分 / 百分</small></div>
+  <div id="levelName"></div>
+  <p id="levelDesc"></p>
+  <p id="scoreNote"></p>
+  <div class="res-tabs" id="resTabs"></div>
+  <div id="resBody" style="text-align:left"></div>
+  <div style="margin-top:36px;display:flex;gap:14px;justify-content:center;flex-wrap:wrap">
+    <button class="btn small ghost" id="backExam">返回答题页回顾</button>
+    <button class="btn small ghost" id="restartBtn">重新作答</button>
+  </div>
+</div>
+
+<div id="confirmModal" class="hidden">
+  <div class="box">
+    <p style="color:var(--gold);font-size:18px;letter-spacing:.2em">确 认 交 卷 ？</p>
+    <p id="confirmText" style="color:var(--dim);font-size:14.5px"></p>
+    <div id="missList"></div>
+    <div style="display:flex;gap:12px;justify-content:center;margin-top:14px">
+      <button class="btn small ghost" id="cancelSubmit">继续作答</button>
+      <button class="btn small" id="doSubmit">确认交卷</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const DATA = {"questions": [{"num": 1, "type": "简答题", "section": "凡人篇（雪鹰领·成长·学院）", "question": "东伯雪鹰八岁那年，父亲让他每天加练多少根短矛？后来他一个人偷偷加到了多少？这对后续剧情有什么暗示意义？", "options": {}, "ans": null, "analysis": "父亲先说加练五百次，后改为加练一千次。雪鹰后来自己加到了每天一千次短矛+两千次枪法+各种拳法斗气训练等，总计远超常人。这暗示了他天生体质异于常人、拥有超越常人的体能和毅力，也为他日后成为强者奠定了最基础的根基。"}, {"num": 2, "type": "简答题", "section": "凡人篇（雪鹰领·成长·学院）", "question": "东伯雪鹰拒绝进入长风学院的推理逻辑是什么？他引用的数据说明了什么深层问题？", "options": {}, "ans": null, "analysis": "他搜集整理了历史上125名超凡强者的传记，发现其中只有16名是学院派出身，而109名是自己摸索修行成为超凡的。这说明学院派详细指引虽然能让修行者在早期进步更快、大批量培养中低层战力，但当需要走出自己的路突破到超凡时，学院派反而因为习惯了被指引而成为桎梏。非学院派虽然起步慢，但每一步都是自己摸索出来的，已经具备了独立开创道路的能力。"}, {"num": 3, "type": "单选题", "section": "凡人篇（雪鹰领·成长·学院）", "question": "东伯雪鹰从父亲留下的金箔书籍中学到了什么枪法？", "options": {"A": "烈焰枪法", "B": "玄冰枪法", "C": "暴风枪法", "D": "雷霆枪法"}, "ans": "B", "analysis": "玄冰枪法，由超凡生命'玄冰骑士'谷元寒留下。"}, {"num": 4, "type": "简答题", "section": "凡人篇（雪鹰领·成长·学院）", "question": "东伯雪鹰为什么一直无法修炼出斗气？他最终是如何突破的？这个突破过程暗示了他身体有什么特殊之处？", "options": {}, "ans": null, "analysis": "他的身体在长年累月的苦练下已经变得比正常人强大超过十倍，仍在不断吸收天地间的力量，身体永远处于'尚未达到极限'的状态，所以无法形成斗气。他最终在15岁那年冬天，在一次练枪时身体最深处开始发痒，经历了身体进化的痛苦过程后突破——身体发生了生命层次的跃迁，变得极其强大。这暗示了他的身体具有非同寻常的潜力和特殊性。"}, {"num": 5, "type": "简答题", "section": "凡人篇（雪鹰领·成长·学院）", "question": "墨阳瑜留给东伯雪鹰的储物法宝是什么？父亲留给他的宝物又是什么？这两件宝物分别有什么特殊之处？", "options": {}, "ans": null, "analysis": "母亲留下的是储物吊坠，墨阳瑜用鲜血烙印只有雪鹰能用，内含材料、金币和卷轴，价值抵得上整个雪鹰领。父亲留下的是金箔书籍——《玄冰枪法》，由超凡生命'玄冰骑士'谷元寒留下，包含《心意枪法》圆满演练、斗气运转法门和《玄冰枪法》三重的详细讲解。"}, {"num": 6, "type": "多选题", "section": "凡人篇（雪鹰领·成长·学院）", "question": "《玄冰枪法》分为哪三重境界？（多选）", "options": {"A": "飘雪", "B": "血雨", "C": "玄冰", "D": "风雪"}, "ans": "ABC", "analysis": "第一重飘雪（入门/枪法大师标志）、第二重血雨（称号级足以纵横）、第三重玄冰（代表超凡之路）。"}, {"num": 7, "type": "简答题", "section": "凡人篇（雪鹰领·成长·学院）", "question": "东伯雪鹰的父亲东伯烈是如何从一个平民成为领主的？这反映了这个世界怎样的社会背景？", "options": {}, "ans": null, "analysis": "东伯烈在军队中修炼成为天阶骑士，后来购买了贵族爵位和领地。这反映了龙山帝国建国九千多年后开始腐朽，低爵位买卖甚至官方允许的社会背景。贵族爵位不再完全靠军功授予，也可以购买获得。"}, {"num": 8, "type": "简答题", "section": "凡人篇（雪鹰领·成长·学院）", "question": "东伯雪鹰在父母被抓走后是如何照顾弟弟青石的？这体现了他什么样的性格特点？", "options": {}, "ans": null, "analysis": "他亲自哄弟弟睡觉、安排仆人照顾、自己承担领主职责的同时还要陪伴弟弟。即使内心悲痛也强忍情绪安慰弟弟，体现他早熟、负责任、爱护家人的性格，也说明他在逆境中迅速成长担当。"}, {"num": 9, "type": "单选题", "section": "凡人篇（雪鹰领·成长·学院）", "question": "东伯雪鹰的弟弟东伯青石几岁时检测出了法师天赋？", "options": {"A": "三岁", "B": "四岁", "C": "五岁", "D": "六岁"}, "ans": "B", "analysis": "青石四岁时触碰晶球发出赤红色光芒，达到法师门槛。"}, {"num": 10, "type": "简答题", "section": "凡人篇（雪鹰领·成长·学院）", "question": "龙山楼是什么组织？它在故事中扮演什么角色？", "options": {}, "ans": null, "analysis": "龙山楼是遍布帝国各城池的隐秘情报组织，每一座城池都有龙山楼。帝国十九座行省每座行省省城都有龙山楼总楼，执掌隐秘强大的力量，负责监察天下。楼中有楼主等高层，如仪水城龙山楼楼主司安大人。黑铁令是龙山楼授予实力足够强的超凡者的令牌。"}, {"num": 11, "type": "简答题", "section": "凡人篇（雪鹰领·成长·学院）", "question": "宗凌为什么说'等你得到龙山楼的黑铁令就告诉你一切'？这句话在整个故事中有什么伏笔作用？", "options": {}, "ans": null, "analysis": "宗凌知道直接告诉雪鹰真相他目前无法承受也无法行动，所以用黑铁令作为目标给他希望和方向。这句话是贯穿前期的重要伏笔——黑铁令代表着实力足够强被龙山楼认可，而得到黑铁令后雪鹰才知道父母被抓的完整真相和拯救方法，这条线索推动着雪鹰不断变强。"}, {"num": 12, "type": "多选题", "section": "凡人篇（雪鹰领·成长·学院）", "question": "雪鹰领的两位守护者/长辈是谁？请选出正确的组合。（多选）", "options": {"A": "铜三（狮人）", "B": "宗凌（六臂蛇魔）", "C": "池丘白（长风骑士）", "D": "盖斌（弯刀盟首领）"}, "ans": "AB", "analysis": "铜三是狮人，曾是墨阳瑜的仆从；宗凌是六臂蛇魔王族。池丘白是后来才出现的角色，盖斌是反派盗匪。"}, {"num": 13, "type": "简答题", "section": "凡人篇（雪鹰领·成长·学院）", "question": "从凡人篇来看，东伯雪鹰展现了哪些超越同龄人的特质？请结合具体事例说明至少三点。", "options": {}, "ans": null, "analysis": "1）八岁就独立分析超凡强者数据做出是否去学院的理性决策（数据思维）；2）父母被抓后迅速承担起领主职责照顾弟弟（责任感）；3）自学枪法秘籍后制定科学训练计划（学习能力）；4）对墨阳家族的实力做出准确推断（分析能力）。这些体现了他早熟、聪慧、坚韧和责任感强的特质。"}, {"num": 14, "type": "简答题", "section": "凡人篇（雪鹰领·成长·学院）", "question": "东伯雪鹰的枪法训练计划具体包含哪些环节？请详细描述他的日常训练安排。", "options": {}, "ans": null, "analysis": "东伯雪鹰的日常训练包括：1）短矛练习（一千次）；2）《火焰三段法》斗气法门锻炼（两到三遍）；3）《心意枪法》六环训练（左手刺枪、右手刺枪、扫抽劈、双手刺枪、格挡、自由攻击）；4）箭矢格挡训练（用仆人射箭练习格挡技巧）；5）药浴恢复。每天修炼足足六个时辰，训练强度远超常人。"}, {"num": 15, "type": "单选题", "section": "凡人篇（雪鹰领·成长·学院）", "question": "抓捕东伯雪鹰父母的墨阳家族成员中，执行人的名字叫什么？", "options": {"A": "墨阳琛", "B": "墨阳瑜", "C": "墨阳烈", "D": "墨阳飞"}, "ans": "A", "analysis": "执行人是墨阳琛，他是墨阳瑜的哥哥，银月法师。"}, {"num": 16, "type": "简答题", "section": "凡人篇（雪鹰领·成长·学院）", "question": "东伯雪鹰的弟弟青石后来走上了什么道路？他的法师天赋在后续剧情中有什么重要作用？", "options": {}, "ans": null, "analysis": "青石检测出法师天赋后走上了法师道路。作为墨阳家族的天才法师子弟，他的天赋不仅证明了墨阳家族对母亲执念的合理性，也在后续剧情中成为东伯雪鹰的重要战力和家族延续的关键。青石的法师天赋也暗示了墨阳家族血脉的优越性。"}, {"num": 17, "type": "多选题", "section": "凡人篇（雪鹰领·成长·学院）", "question": "关于东伯雪鹰的家庭成员和守护者，以下哪些说法是正确的？（多选）", "options": {"A": "铜三是狮人族的仆从", "B": "宗凌是六臂蛇魔王族", "C": "东伯烈是银月级骑士", "D": "墨阳瑜是天阶法师"}, "ans": "ABD", "analysis": "东伯烈只是天阶骑士，不是银月级。其他三项都正确。"}, {"num": 18, "type": "单选题", "section": "凡人篇（雪鹰领·成长·学院）", "question": "《心意枪法》被称为什么？", "options": {"A": "万剑之源", "B": "万法之源", "C": "万枪之源", "D": "万术之源"}, "ans": "B", "analysis": "《心意枪法》被称为'万法之源'，是最基础也是最核心的枪法。"}, {"num": 19, "type": "简答题", "section": "凡人篇（雪鹰领·成长·学院）", "question": "请结合本章内容，分析东伯雪鹰做出的某个重要决定及其影响。", "options": {}, "ans": null, "analysis": "开放性题目，选择本章中主角的一个重要决定进行分析，说明决定的原因和后续影响即可。"}, {"num": 20, "type": "简答题", "section": "凡人篇（雪鹰领·成长·学院）", "question": "本章中出现的宝物/功法对主角后续成长有什么作用？", "options": {}, "ans": null, "analysis": "开放性题目，选择本章中出现的任意宝物或功法，分析其对主角实力提升和剧情推进的作用即可。"}, {"num": 21, "type": "多选题", "section": "凡人篇（雪鹰领·成长·学院）", "question": "以下哪些是东伯雪鹰的重要品质？（多选）", "options": {"A": "勤奋刻苦", "B": "爱护家人", "C": "独立思考", "D": "依赖学院教育"}, "ans": "ABC", "analysis": "东伯雪鹰不依赖学院教育，他选择了自己摸索的道路。D选项错误。"}, {"num": 22, "type": "单选题", "section": "凡人篇（雪鹰领·成长·学院）", "question": "东伯雪鹰最核心的修行理念是什么？", "options": {"A": "依赖他人指导", "B": "走自己的路，独立摸索", "C": "只靠天赋", "D": "放弃修行"}, "ans": "B", "analysis": "东伯雪鹰的核心理念是走自己的路，不依赖他人指引，通过自己的摸索和领悟变强。"}, {"num": 23, "type": "简答题", "section": "凡人篇（雪鹰领·成长·学院）", "question": "本章中哪个配角给你留下了深刻印象？为什么？", "options": {}, "ans": null, "analysis": "开放性题目，选择任意配角进行分析，说明其性格特点和对主角/剧情的作用即可。"}, {"num": 24, "type": "简答题", "section": "凡人篇（雪鹰领·成长·学院）", "question": "请结合本章内容，分析东伯雪鹰做出的某个重要决定及其影响。", "options": {}, "ans": null, "analysis": "开放性题目，选择本章中主角的一个重要决定进行分析，说明决定的原因和后续影响即可。 第二关：血刃篇（血刃榜·龙山榜·初露锋芒）"}, {"num": 25, "type": "简答题", "section": "血刃篇（血刃榜·龙山榜·初露锋芒）", "question": "东伯雪鹰进入毁灭山脉后经历了什么？他是如何学会《玄冰枪法》第一层'飘雪'的？", "options": {}, "ans": null, "analysis": "东伯雪鹰进入毁灭山脉是为了变强救父母。在山脉中他经历了艰苦的生存考验，与各种魔兽战斗，不断磨砺枪法。他将《心意枪法》练到了圆满境界，从而成功施展出《玄冰枪法》第一重'飘雪'。过程中他遇到了弯刀盟首领盖斌等对手，经历了生死战斗，实力大增。"}, {"num": 26, "type": "简答题", "section": "血刃篇（血刃榜·龙山榜·初露锋芒）", "question": "'龙山楼黑铁令'是什么？东伯雪鹰是如何得到的？宗凌说的'一切'具体指的是什么？", "options": {}, "ans": null, "analysis": "黑铁令是龙山楼授予实力足够强的超凡者的令牌，代表龙山楼的认可和一定权力。东伯雪鹰通过在毁灭山脉中展现出的实力和贡献让龙山楼认可他而获得。宗凌说的'一切'指的是东伯雪鹰父母的完整过去——墨阳家族的真相、墨阳瑜逃离家族的具体原因、以及如何才能救回父母的详细方法。"}, {"num": 27, "type": "单选题", "section": "血刃篇（血刃榜·龙山榜·初露锋芒）", "question": "弯刀盟首领盖斌是什么级别的骑士？", "options": {"A": "天阶骑士", "B": "流星级骑士", "C": "银月骑士", "D": "称号骑士"}, "ans": "B", "analysis": "盖斌是流星级骑士，刀法极快，比正常流星级骑士都快。"}, {"num": 28, "type": "简答题", "section": "血刃篇（血刃榜·龙山榜·初露锋芒）", "question": "东伯雪鹰的母亲墨阳瑜的真实身份是什么？墨阳家族在夏族世界中是什么地位？", "options": {}, "ans": null, "analysis": "墨阳瑜是墨阳家族的天才法师，当年违背族规与人类东伯烈相爱并逃离家族。墨阳家族是东域行省排在第十位的大家族，虽然排名最后但依然是庞然大物，拥有银月级甚至更强者。"}, {"num": 29, "type": "简答题", "section": "血刃篇（血刃榜·龙山榜·初露锋芒）", "question": "东伯雪鹰在血刃榜体系中掌握了哪些关键能力？这些能力对他后续成长有什么意义？", "options": {}, "ans": null, "analysis": "他掌握了《玄冰枪法》的飘雪和血雨两层、天人合一的境界、以及各种战斗经验。这些能力让他在面对更强大的敌人时有自保和反击的能力，也为他后来进入更高层次的世界打下了坚实的战斗基础。"}, {"num": 30, "type": "多选题", "section": "血刃篇（血刃榜·龙山榜·初露锋芒）", "question": "关于仪水县的实力格局，以下哪些说法是正确的？（多选）", "options": {"A": "共有四名流星骑士", "B": "有一名流星级大法师", "C": "弯刀盟首领盖斌是其中最强大的盗匪", "D": "东伯烈是流星级骑士"}, "ans": "ABC", "analysis": "东伯烈只是天阶骑士，不是流星级。"}, {"num": 31, "type": "简答题", "section": "血刃篇（血刃榜·龙山榜·初露锋芒）", "question": "东伯雪鹰的父亲东伯烈的真实身份和过去是怎样的？他为什么买下方领？", "options": {}, "ans": null, "analysis": "东伯烈是一名普通人类骑士（天阶），他并非什么隐藏大佬，就是一个深爱妻子、愿意为家人付出一切的普通父亲和丈夫。他和墨阳瑜相爱后有了孩子，为了给孩子更好的生活和保护家人，他购买贵族爵位和领地，隐姓埋名过平静生活。"}, {"num": 32, "type": "简答题", "section": "血刃篇（血刃榜·龙山榜·初露锋芒）", "question": "东伯雪鹰在成长过程中展现了哪些超越同龄人的特质？请结合具体事例说明。", "options": {}, "ans": null, "analysis": "1）八岁就独立分析超凡强者数据做出是否去学院的理性决策；2）父母被抓后迅速承担起领主职责照顾弟弟；3）自学枪法秘籍后制定科学训练计划；4）对墨阳家族的实力做出准确推断。这些体现了他早熟、聪慧、坚韧和责任感强的特质。"}, {"num": 33, "type": "单选题", "section": "血刃篇（血刃榜·龙山榜·初露锋芒）", "question": "东伯雪鹰在血刃酒馆/血刃榜体系中是如何快速提升自己的名声的？", "options": {"A": "靠家族背景", "B": "通过龙山楼任务体系和血刃酒馆排行榜", "C": "靠学院推荐", "D": "靠龙山楼直接授予"}, "ans": "B", "analysis": "他通过龙山楼的任务体系和血刃酒馆的排行榜等渠道快速提升名声和实力。"}, {"num": 34, "type": "简答题", "section": "血刃篇（血刃榜·龙山榜·初露锋芒）", "question": "东伯雪领的破星弩有什么特殊之处？为什么这么多破星弩能让银月级的墨阳琛有所忌惮？", "options": {}, "ans": null, "analysis": "破星弩是专门针对超凡生命设计的武器，普通弩箭对超凡无效，但破星弩的特殊材质和工艺能够伤到星辰级甚至更高级别的存在。五百把破星弩同时攻击，即使对银月法师也能造成威胁，所以墨阳琛虽然强大但也需要认真对待。"}, {"num": 35, "type": "简答题", "section": "血刃篇（血刃榜·龙山榜·初露锋芒）", "question": "毁灭山脉在整个故事中有什么特殊意义？它为什么成为许多亡命之徒的避难所？", "options": {}, "ans": null, "analysis": "毁灭山脉连绵过十万里，连接了四座行省，是整个帝国第一大山脉，里面生活了无数可怕的魔兽。因为山脉深处太危险，帝国城池的城卫军也不愿意去攻打，所以许多亡命徒就躲在毁灭山脉的最外围区域。对东伯雪鹰来说，毁灭山脉是他实战历练、提升枪法、获得黑铁令的关键场所。"}, {"num": 36, "type": "多选题", "section": "血刃篇（血刃榜·龙山榜·初露锋芒）", "question": "关于东伯雪鹰在毁灭山脉期间的经历，以下哪些是正确的？（多选）", "options": {"A": "他将心意枪法练到了圆满境界", "B": "他遇到了弯刀盟首领盖斌", "C": "他学会了《玄冰枪法》全部三重", "D": "他获得了龙山楼黑铁令"}, "ans": "ABD", "analysis": "在毁灭山脉期间他只学会了第一重'飘雪'，第二重'血雨'和第三重'玄冰'还未学会。"}, {"num": 37, "type": "简答题", "section": "血刃篇（血刃榜·龙山榜·初露锋芒）", "question": "东伯雪鹰在仪水城期间做了哪些事情来提升自己的实力和名声？请梳理他的成长轨迹。", "options": {}, "ans": null, "analysis": "他在仪水城期间的主要活动包括：1）通过龙山楼接受任务积累经验和名声；2）在血刃酒馆排行榜上战斗提升排名；3）与各方势力接触获取情报和资源；4）继续修炼枪法和斗气；5）结识余靖秋等伙伴。这些活动让他从一个雪鹰领的少年成长为有一定名气的超凡者。"}, {"num": 38, "type": "单选题", "section": "血刃篇（血刃榜·龙山榜·初露锋芒）", "question": "东伯雪鹰的狮人护卫铜三原本是什么身份？", "options": {"A": "贵族骑士", "B": "奴隶", "C": "商人", "D": "农民"}, "ans": "B", "analysis": "铜三年少时曾是奴隶，被分配给墨阳瑜后成为她的仆从并忠诚追随。"}, {"num": 39, "type": "多选题", "section": "血刃篇（血刃榜·龙山榜·初露锋芒）", "question": "关于东伯雪鹰与余靖秋的关系发展，以下哪些说法是正确的？（多选）", "options": {"A": "余靖秋是水源道观的师妹", "B": "她从最初与雪鹰是师兄妹情谊", "C": "她是一位极具天赋的法师", "D": "她后来成为了东伯雪鹰的师傅"}, "ans": "ABC", "analysis": "余靖秋是东伯雪鹰的师妹和重要伙伴，但她并没有成为他的师傅。"}, {"num": 40, "type": "单选题", "section": "血刃篇（血刃榜·龙山榜·初露锋芒）", "question": "宗凌是什么种族的强者？", "options": {"A": "狮人", "B": "六臂蛇魔", "C": "精灵", "D": "矮人"}, "ans": "B", "analysis": "宗凌是六臂蛇魔，属于兽人族蛇人中血脉最珍贵的王族。"}, {"num": 41, "type": "简答题", "section": "血刃篇（血刃榜·龙山榜·初露锋芒）", "question": "本章中哪个配角给你留下了深刻印象？为什么？", "options": {}, "ans": null, "analysis": "开放性题目，选择任意配角进行分析，说明其性格特点和对主角/剧情的作用即可。"}, {"num": 42, "type": "简答题", "section": "血刃篇（血刃榜·龙山榜·初露锋芒）", "question": "请结合本章内容，分析东伯雪鹰做出的某个重要决定及其影响。", "options": {}, "ans": null, "analysis": "开放性题目，选择本章中主角的一个重要决定进行分析，说明决定的原因和后续影响即可。"}, {"num": 43, "type": "简答题", "section": "血刃篇（血刃榜·龙山榜·初露锋芒）", "question": "本章中出现的宝物/功法对主角后续成长有什么作用？", "options": {}, "ans": null, "analysis": "开放性题目，选择本章中出现的任意宝物或功法，分析其对主角实力提升和剧情推进的作用即可。"}, {"num": 44, "type": "多选题", "section": "血刃篇（血刃榜·龙山榜·初露锋芒）", "question": "以下哪些是东伯雪鹰的重要品质？（多选）", "options": {"A": "勤奋刻苦", "B": "爱护家人", "C": "独立思考", "D": "依赖学院教育"}, "ans": "ABC", "analysis": "东伯雪鹰不依赖学院教育，他选择了自己摸索的道路。D选项错误。"}, {"num": 45, "type": "单选题", "section": "血刃篇（血刃榜·龙山榜·初露锋芒）", "question": "东伯雪鹰最核心的修行理念是什么？", "options": {"A": "依赖他人指导", "B": "走自己的路，独立摸索", "C": "只靠天赋", "D": "放弃修行"}, "ans": "B", "analysis": "东伯雪鹰的核心理念是走自己的路，不依赖他人指引，通过自己的摸索和领悟变强。"}, {"num": 46, "type": "简答题", "section": "血刃篇（血刃榜·龙山榜·初露锋芒）", "question": "本章中哪个配角给你留下了深刻印象？为什么？", "options": {}, "ans": null, "analysis": "开放性题目，选择任意配角进行分析，说明其性格特点和对主角/剧情的作用即可。 第三关：超凡篇（池丘白·海神宫·父母团圆）"}, {"num": 47, "type": "简答题", "section": "超凡篇（池丘白·海神宫·父母团圆）", "question": "池丘白是谁？他在整个故事中扮演了什么角色？", "options": {}, "ans": null, "analysis": "池丘白是'长风骑士'，是整个安阳行省的最强者，也是东伯雪鹰人生中最关键的导师和保护者之一。他是一位超凡生命（半神级别的存在），在夏族中地位极高。多次在东伯雪鹰危难时出手相助，提供修行资源和夏族隐秘知识，是连接东伯雪鹰与夏族高层势力的关键人物，也是他从'地方强者'走向'天下舞台'的重要引路人。"}, {"num": 48, "type": "简答题", "section": "超凡篇（池丘白·海神宫·父母团圆）", "question": "'海神宫'是什么？东伯雪鹰在海神宫中获得了什么机缘？", "options": {}, "ans": null, "analysis": "海神宫是夏族内部的一个隐秘组织和修炼圣地，由半神级别的强者管理。东伯雪鹰在海神宫中获得了许多珍贵宝物和修炼机缘，包括一些神界战兵级别的宝物，这些极大地提升了他的实力和底蕴。"}, {"num": 49, "type": "单选题", "section": "超凡篇（池丘白·海神宫·父母团圆）", "question": "池丘白是什么级别的强者？", "options": {"A": "称号级骑士", "B": "半神（超凡）", "C": "神灵", "D": "普通天阶"}, "ans": "B", "analysis": "池丘白是半神级别的超凡存在，也是安阳行省的最强者。"}, {"num": 50, "type": "简答题", "section": "超凡篇（池丘白·海神宫·父母团圆）", "question": "东伯雪鹰的父母回来后对他的成长产生了什么影响？", "options": {}, "ans": null, "analysis": "母亲墨阳瑜重新教导他法师相关的知识和家族隐秘；父亲东伯烈继续传授他战斗经验和人生智慧。同时父母的回归也让东伯雪鹰更加坚定了变强的决心，给了他情感上的支持和后盾，使他能够更专注于修行和面对后续的挑战。"}, {"num": 51, "type": "简答题", "section": "超凡篇（池丘白·海神宫·父母团圆）", "question": "东伯雪鹰在超凡篇中经历了哪些重要的实力突破？请按时间顺序简述。", "options": {}, "ans": null, "analysis": "1）突破身体极限产生斗气成为骑士；2）在毁灭山脉学会《玄冰枪法》第一重飘雪；3）获得龙山楼黑铁令进入更高层次的超凡世界；4）在血刃榜体系中积累名声和经验；5）得到池丘白的指导和帮助；6）在海神宫获得珍贵宝物和机缘。这一系列突破为他后续面对神魔战争等更大挑战做好了准备。"}, {"num": 52, "type": "多选题", "section": "超凡篇（池丘白·海神宫·父母团圆）", "question": "关于东伯雪鹰父母的营救和团圆，以下哪些说法是正确的？（多选）", "options": {"A": "父母是通过夏族半神强者们的联合行动被救回的", "B": "东伯雪鹰在营救中发挥了关键作用", "C": "父母回来后墨阳瑜重新教导雪鹰法师相关知识", "D": "父母是被池丘白一个人救回来的"}, "ans": "ABC", "analysis": "父母是通过多方联合行动救回的，不是池丘白一个人完成的。"}, {"num": 53, "type": "简答题", "section": "超凡篇（池丘白·海神宫·父母团圆）", "question": "东伯雪鹰为什么说自己'不是当法师的料'？这与他后来的成长有什么关联？", "options": {}, "ans": null, "analysis": "他说自己精神力不够，而法师对精神力要求很高。这看似是劣势，但实际上促使他专注于骑士道路，最终走出一条独特的路。而且他后来在神界等更高世界中也接触了更高层次的修行体系，精神力并非他唯一的短板，他的核心优势在于战斗天赋、枪法和独特的修行道路。"}, {"num": 54, "type": "简答题", "section": "超凡篇（池丘白·海神宫·父母团圆）", "question": "从凡人篇到超凡篇，东伯雪鹰的成长主线是什么？这条主线如何推动整个故事发展？", "options": {}, "ans": null, "analysis": "主线是'变强→救父母→保护家人'。从童年苦练枪法到拒绝学院走自己的路，从进入毁灭山脉到获得黑铁令，从认识池丘白到海神宫获得机缘，每一步都在为最终拯救父母和面对更大挑战做准备。这条主线贯穿始终，驱动着主角不断突破自我，也推动了从凡人世界到神界再到浑源空间的宏大叙事。"}, {"num": 55, "type": "单选题", "section": "超凡篇（池丘白·海神宫·父母团圆）", "question": "海神宫的重要人物是谁？", "options": {"A": "池丘白", "B": "雷真长老", "C": "司安", "D": "盖斌"}, "ans": "B", "analysis": "雷真长老是海神宫的重要人物，在东伯雪鹰的成长中提供了重要的修炼资源和指导。"}, {"num": 56, "type": "简答题", "section": "超凡篇（池丘白·海神宫·父母团圆）", "question": "东伯雪鹰的储物吊坠中除了材料和金币，还有什么重要物品？这些东西分别在后续剧情中起了什么作用？", "options": {}, "ans": null, "analysis": "储物吊坠中还有卷轴等物品。这些卷轴可能包含了墨阳家族的知识、法术秘籍或其他珍贵资料，在后续剧情中为东伯雪鹰提供了重要的知识和资源支持。吊坠本身也是墨阳家族的物品，在后续可能成为识别身份或获取家族资源的凭证。"}, {"num": 57, "type": "简答题", "section": "超凡篇（池丘白·海神宫·父母团圆）", "question": "东伯雪鹰获得龙山楼黑铁令后，他的生活发生了什么变化？这条线索如何推动剧情发展？", "options": {}, "ans": null, "analysis": "获得黑铁令后，东伯雪鹰正式进入了更高层次的超凡世界社交圈。他获得了龙山楼的认可和一定权力，可以接触更高级别的任务和情报。这条线索推动他从雪鹰领走向更广阔的世界，结识池丘白等关键人物，进入海神宫获得机缘，最终走向神魔战争等更大舞台。黑铁令是他从'地方少年'到'天下英雄'的身份转变标志。"}, {"num": 58, "type": "多选题", "section": "超凡篇（池丘白·海神宫·父母团圆）", "question": "关于超凡生命的设定，以下哪些说法是正确的？（多选）", "options": {"A": "超凡是生命层次的跃迁", "B": "单纯的凡人数量对超凡没有意义", "C": "神灵也很忌惮超凡生命", "D": "只有人类才能成为超凡"}, "ans": "ABC", "analysis": "除了人类，熔岩巨人、深渊大恶魔等也可以成为超凡生命。D选项错误。"}, {"num": 59, "type": "简答题", "section": "超凡篇（池丘白·海神宫·父母团圆）", "question": "墨阳家族为什么对墨阳瑜违背族规的事情如此执着？这反映了家族怎样的价值观？", "options": {}, "ans": null, "analysis": "墨阳家族传承一千余年靠的就是家族法规，没有规矩再兴盛的家族也最终会败落。墨阳瑜违背族规与人类相爱并逃离家族，这是对家族法规的严重挑战。如果放任不管，家族法规的权威性将受到质疑，可能导致更多子弟效仿，最终导致家族衰败。这反映了墨阳家族'规矩高于一切'的价值观，也暗示了这种僵化体制的弊端。"}, {"num": 60, "type": "多选题", "section": "超凡篇（池丘白·海神宫·父母团圆）", "question": "关于夏族的等级体系，以下哪些是正确的？（多选）", "options": {"A": "骑士有七个级别", "B": "法师也有类似的等级体系", "C": "超凡之上还有神灵", "D": "墨阳家族是东域行省最强的家族"}, "ans": "ABC", "analysis": "墨阳家族在东域行省排在第十位，不是最强的。长风学院等势力比墨阳家族更强。"}, {"num": 61, "type": "单选题", "section": "超凡篇（池丘白·海神宫·父母团圆）", "question": "东伯雪鹰的舅舅（墨阳瑜的哥哥）是什么级别的法师？", "options": {"A": "天阶法师", "B": "银月法师", "C": "称号法师", "D": "超凡法师"}, "ans": "B", "analysis": "墨阳琛是银月法师，即便在墨阳家族年轻一代中也排在前三。"}, {"num": 62, "type": "多选题", "section": "超凡篇（池丘白·海神宫·父母团圆）", "question": "关于龙山楼的描述，以下哪些是正确的？（多选）", "options": {"A": "每座城池都有龙山楼", "B": "每座行省省城有龙山楼总楼", "C": "龙山楼负责监察天下", "D": "龙山楼只服务于贵族"}, "ans": "ABC", "analysis": "龙山楼是遍布帝国的隐秘情报监察组织，不局限于服务贵族。"}, {"num": 63, "type": "单选题", "section": "超凡篇（池丘白·海神宫·父母团圆）", "question": "东伯雪鹰最核心的修行理念是什么？", "options": {"A": "依赖他人指导", "B": "走自己的路，独立摸索", "C": "只靠天赋", "D": "放弃修行"}, "ans": "B", "analysis": "东伯雪鹰的核心理念是走自己的路，不依赖他人指引，通过自己的摸索和领悟变强。"}, {"num": 64, "type": "简答题", "section": "超凡篇（池丘白·海神宫·父母团圆）", "question": "本章中哪个配角给你留下了深刻印象？为什么？", "options": {}, "ans": null, "analysis": "开放性题目，选择任意配角进行分析，说明其性格特点和对主角/剧情的作用即可。"}, {"num": 65, "type": "简答题", "section": "超凡篇（池丘白·海神宫·父母团圆）", "question": "请结合本章内容，分析东伯雪鹰做出的某个重要决定及其影响。", "options": {}, "ans": null, "analysis": "开放性题目，选择本章中主角的一个重要决定进行分析，说明决定的原因和后续影响即可。"}, {"num": 66, "type": "简答题", "section": "超凡篇（池丘白·海神宫·父母团圆）", "question": "本章中出现的宝物/功法对主角后续成长有什么作用？", "options": {}, "ans": null, "analysis": "开放性题目，选择本章中出现的任意宝物或功法，分析其对主角实力提升和剧情推进的作用即可。"}, {"num": 67, "type": "多选题", "section": "超凡篇（池丘白·海神宫·父母团圆）", "question": "以下哪些是东伯雪鹰的重要品质？（多选）", "options": {"A": "勤奋刻苦", "B": "爱护家人", "C": "独立思考", "D": "依赖学院教育"}, "ans": "ABC", "analysis": "东伯雪鹰不依赖学院教育，他选择了自己摸索的道路。D选项错误。"}, {"num": 68, "type": "单选题", "section": "超凡篇（池丘白·海神宫·父母团圆）", "question": "东伯雪鹰最核心的修行理念是什么？", "options": {"A": "依赖他人指导", "B": "走自己的路，独立摸索", "C": "只靠天赋", "D": "放弃修行"}, "ans": "B", "analysis": "东伯雪鹰的核心理念是走自己的路，不依赖他人指引，通过自己的摸索和领悟变强。 第四关：神魔战争篇（恶魔入侵·黑风神宫·决战）"}, {"num": 69, "type": "简答题", "section": "神魔战争篇（恶魔入侵·黑风神宫·决战）", "question": "恶魔入侵是如何爆发的？巫神和大魔神各自的计划和目的分别是什么？", "options": {}, "ans": null, "analysis": "恶魔入侵是因为黑暗深渊与夏族世界的空间通道被打开而爆发的。巫神是物质界的领主（炼化了一座凡人世界之心的神灵），他谋划已久，目的是将整个夏族世界建造成一个超大型堡垒，作为黑暗深渊入侵的据点。大魔神是黑暗深渊的强大存在，他与巫神合作提供大量恶魔力量。他们发动入侵的真正目的是扩张黑暗深渊的势力范围，消灭夏族这个最大的阻碍。"}, {"num": 70, "type": "简答题", "section": "神魔战争篇（恶魔入侵·黑风神宫·决战）", "question": "'黑风神宫'是什么地方？东伯雪鹰在其中经历了什么？", "options": {}, "ans": null, "analysis": "黑风神宫是一座由半神级别存在建造的隐秘洞府宫殿，位于黑风渊谷底。其中隐藏着大量的宝物、功法传承和修炼机缘。东伯雪鹰在黑风神宫中遇到了黑龙等强大对手，也获得了重要的修炼资源和情报。黑风神宫的建造者是一位'碾压一个时代的半神'级别的存在，其底蕴远超普通半神遗迹。"}, {"num": 71, "type": "单选题", "section": "神魔战争篇（恶魔入侵·黑风神宫·决战）", "question": "巫神是什么级别的存在？", "options": {"A": "普通神灵", "B": "物质界领主（炼化世界之心的神灵）", "C": "半神", "D": "超凡"}, "ans": "B", "analysis": "巫神是物质界的领主，炼化了一座凡人世界之心的神灵，级别极高。"}, {"num": 72, "type": "简答题", "section": "神魔战争篇（恶魔入侵·黑风神宫·决战）", "question": "神魔战争对整个夏族世界有什么深远影响？对东伯雪鹰个人有什么影响？", "options": {}, "ans": null, "analysis": "对夏族世界：付出了惨重代价但也获得了成长，东伯雪鹰因此名震天下，也为后续进入神界奠定了基础。对个人：池丘白的死让他深刻认识到战争的残酷和变强的必要性，成为他后续不断突破的重要动力。战争的洗礼也让他的实力和心境都有了质的飞跃。"}, {"num": 73, "type": "简答题", "section": "神魔战争篇（恶魔入侵·黑风神宫·决战）", "question": "东伯雪鹰是如何在神魔战争中脱颖而出的？请结合他的能力和策略来回答。", "options": {}, "ans": null, "analysis": "他通过多种方式脱颖而出：掌握二品真意（虚界真意等）获得超越普通半神的实力；获得十二阶星塔等镇族级宝物；掌握多种强大枪法和战斗技巧。这些能力分别来自红石山的传承、夏族先辈的馈赠、以及他自身的悟性和战斗积累。他在战争中多次拯救夏族于危难，逐渐成为了夏族最重要的战力之一。"}, {"num": 74, "type": "多选题", "section": "神魔战争篇（恶魔入侵·黑风神宫·决战）", "question": "关于最终决战，以下哪些说法是正确的？（多选）", "options": {"A": "东伯雪鹰凭借二品真意参与决战", "B": "星塔在决战中形成了独立的世界领域", "C": "池丘白在决战中战死", "D": "战争以夏族完全无损获胜"}, "ans": "ABC", "analysis": "夏族在战争中付出了惨重代价，并非完全无损。"}, {"num": 75, "type": "简答题", "section": "神魔战争篇（恶魔入侵·黑风神宫·决战）", "question": "池丘白的死对东伯雪鹰的后续成长有什么深远影响？", "options": {}, "ans": null, "analysis": "池丘白的死让东伯雪鹰深刻认识到战争的残酷和变强的必要性，成为他后续不断突破的重要动力。池丘白生前对东伯雪鹰的栽培和信任，也体现了他对后辈的关怀和远见。失去这位最重要的导师和保护者，迫使东伯雪鹰更加独立地面对挑战，加速了他的成长。"}, {"num": 76, "type": "简答题", "section": "神魔战争篇（恶魔入侵·黑风神宫·决战）", "question": "黑风神宫的建造者是什么级别的存在？这座宫殿对东伯雪鹰的意义是什么？", "options": {}, "ans": null, "analysis": "黑风神宫的建造者是一位'碾压一个时代的半神'级别的存在，其底蕴远超普通半神遗迹。对东伯雪鹰来说，黑风神宫是他获得重要修炼资源和情报的地方，也是他进一步成长和变强的关键场所之一，为他后续面对更强大的敌人奠定了基础。"}, {"num": 77, "type": "多选题", "section": "神魔战争篇（恶魔入侵·黑风神宫·决战）", "question": "关于东伯雪鹰在战争中获得的关键能力，以下哪些是正确的？（多选）", "options": {"A": "二品真意（虚界真意等）", "B": "十二阶星塔", "C": "多种强大的枪法和战斗技巧", "D": "神灵级别的力量"}, "ans": "ABC", "analysis": "东伯雪鹰在战争中获得了二品真意、星塔等宝物和技巧，但尚未达到神灵级别。"}, {"num": 78, "type": "简答题", "section": "神魔战争篇（恶魔入侵·黑风神宫·决战）", "question": "请简述神魔战争篇在整个小说叙事结构中的作用。它如何承上启下？", "options": {}, "ans": null, "analysis": "神魔战争篇是小说从'凡人篇'到'神界篇'的重要过渡。承上：它总结了前期所有伏笔（父母被抓、黑铁令、池丘白的指引等），让东伯雪鹰在凡人世界达到实力巅峰。启下：战争的惨烈和池丘白的死促使他必须前往更高层次的世界（神界）继续修行，同时也为后续更大的宇宙战争埋下伏笔。这一篇完成了主角从'地方强者'到'天下英雄'的身份转变。"}, {"num": 79, "type": "简答题", "section": "神魔战争篇（恶魔入侵·黑风神宫·决战）", "question": "神魔战争篇中，夏族有哪些重要势力参与了抵抗？请列举主要参与者和他们的角色。", "options": {}, "ans": null, "analysis": "参与抵抗的主要势力包括：1）池丘白（长风骑士/半神）率领夏族强者抵抗；2）东伯雪鹰（此时已具备相当实力）参与关键战斗；3）海神宫等隐秘组织提供支援；4）龙山楼等情报机构提供情报支持；5）各家族和势力的强者们共同抵抗。这些势力虽然实力参差不齐，但共同面对恶魔入侵的危机。"}, {"num": 80, "type": "单选题", "section": "神魔战争篇（恶魔入侵·黑风神宫·决战）", "question": "池丘白在决战中的结局是什么？", "options": {"A": "成功撤退", "B": "战死", "C": "被俘", "D": "突破到更高境界"}, "ans": "B", "analysis": "池丘白在决战中战死，这对东伯雪鹰和整个夏族都是巨大的打击。"}, {"num": 81, "type": "简答题", "section": "神魔战争篇（恶魔入侵·黑风神宫·决战）", "question": "东伯雪鹰在神魔战争中的表现如何体现他从一个'救父母的少年'成长为'天下英雄'的转变？", "options": {}, "ans": null, "analysis": "在凡人篇中，东伯雪鹰的目标仅仅是'救父母'，行动范围局限于仪水城和雪鹰领。到神魔战争篇，他已经站在天下舞台的中心，面对的是关乎整个夏族存亡的危机。他的战斗不再只是为了个人，而是为了保护更多的人。池丘白的牺牲让他理解了更大责任的分量，黑风神宫的机缘让他获得了足以影响战局的力量。这种从'小家'到'大家'的成长，是他角色弧光最重要的转变。"}, {"num": 82, "type": "多选题", "section": "神魔战争篇（恶魔入侵·黑风神宫·决战）", "question": "关于恶魔入侵的势力，以下哪些是正确的？（多选）", "options": {"A": "巫神是物质界领主", "B": "大魔神来自黑暗深渊", "C": "恶魔入侵通过空间通道进行", "D": "巫神单独行动没有盟友"}, "ans": "ABC", "analysis": "巫神与大魔神是合作关系，不是单独行动。D选项错误。"}, {"num": 83, "type": "单选题", "section": "神魔战争篇（恶魔入侵·黑风神宫·决战）", "question": "星塔在最终决战中的作用是什么？", "options": {"A": "作为武器直接攻击", "B": "形成独立的世界领域", "C": "作为传送工具", "D": "作为防御盾牌"}, "ans": "B", "analysis": "星塔形成了一个独立的世界领域，在其中东伯雪鹰可以充分发挥实力而不受外界干扰。"}, {"num": 84, "type": "多选题", "section": "神魔战争篇（恶魔入侵·黑风神宫·决战）", "question": "关于黑风神宫的描述，以下哪些是正确的？（多选）", "options": {"A": "位于黑风渊谷底", "B": "由半神级别存在建造", "C": "隐藏着大量宝物和传承", "D": "是墨阳家族的产业"}, "ans": "ABC", "analysis": "黑风神宫不是墨阳家族的产业，而是由一位碾压一个时代的半神所建。"}, {"num": 85, "type": "多选题", "section": "神魔战争篇（恶魔入侵·黑风神宫·决战）", "question": "以下哪些是东伯雪鹰的重要品质？（多选）", "options": {"A": "勤奋刻苦", "B": "爱护家人", "C": "独立思考", "D": "依赖学院教育"}, "ans": "ABC", "analysis": "东伯雪鹰不依赖学院教育，他选择了自己摸索的道路。D选项错误。"}, {"num": 86, "type": "单选题", "section": "神魔战争篇（恶魔入侵·黑风神宫·决战）", "question": "东伯雪鹰最核心的修行理念是什么？", "options": {"A": "依赖他人指导", "B": "走自己的路，独立摸索", "C": "只靠天赋", "D": "放弃修行"}, "ans": "B", "analysis": "东伯雪鹰的核心理念是走自己的路，不依赖他人指引，通过自己的摸索和领悟变强。"}, {"num": 87, "type": "简答题", "section": "神魔战争篇（恶魔入侵·黑风神宫·决战）", "question": "本章中哪个配角给你留下了深刻印象？为什么？", "options": {}, "ans": null, "analysis": "开放性题目，选择任意配角进行分析，说明其性格特点和对主角/剧情的作用即可。"}, {"num": 88, "type": "简答题", "section": "神魔战争篇（恶魔入侵·黑风神宫·决战）", "question": "请结合本章内容，分析东伯雪鹰做出的某个重要决定及其影响。", "options": {}, "ans": null, "analysis": "开放性题目，选择本章中主角的一个重要决定进行分析，说明决定的原因和后续影响即可。"}, {"num": 89, "type": "简答题", "section": "神魔战争篇（恶魔入侵·黑风神宫·决战）", "question": "本章中出现的宝物/功法对主角后续成长有什么作用？", "options": {}, "ans": null, "analysis": "开放性题目，选择本章中出现的任意宝物或功法，分析其对主角实力提升和剧情推进的作用即可。"}, {"num": 90, "type": "多选题", "section": "神魔战争篇（恶魔入侵·黑风神宫·决战）", "question": "以下哪些是东伯雪鹰的重要品质？（多选）", "options": {"A": "勤奋刻苦", "B": "爱护家人", "C": "独立思考", "D": "依赖学院教育"}, "ans": "ABC", "analysis": "东伯雪鹰不依赖学院教育，他选择了自己摸索的道路。D选项错误。 第五关：神界篇（红石山·拜师·神界新人）"}, {"num": 91, "type": "简答题", "section": "神界篇（红石山·拜师·神界新人）", "question": "东伯雪鹰为何要进入红石山？红石山是什么？它和神界有什么关系？", "options": {}, "ans": null, "analysis": "东伯雪鹰进入红石山是为了进一步提升实力、学习更高深的修行知识。红石山实际上是一件来自神界的恐怖神器，它坠落到凡人世界后变成了一个修炼圣地和考验场所。它与神界有着密切联系，红石山内的界神们可以通过它与神界保持联系。"}, {"num": 92, "type": "简答题", "section": "神界篇（红石山·拜师·神界新人）", "question": "东伯雪鹰拜师的对象是谁？他学到了什么核心功法？", "options": {}, "ans": null, "analysis": "东伯雪鹰在红石山中学到了《万劫混元经》等核心功法，这些功法帮助他全面提升了实力。他的师傅（指引者）是红石山内的界神级别存在（如奚薇等），他们看到了东伯雪鹰的非凡天赋，愿意倾力培养他。东伯雪鹰的修行速度之快让红石山内的强者们都感到震惊。"}, {"num": 93, "type": "单选题", "section": "神界篇（红石山·拜师·神界新人）", "question": "东伯雪鹰在红石山中通过了什么考验后成为了什么身份？", "options": {"A": "护法弟子", "B": "普通弟子", "C": "长老", "D": "山主"}, "ans": "A", "analysis": "东伯雪鹰在红石山中通过了层层考验，最终成为了护法弟子，这是红石山弟子体系中的高级身份。"}, {"num": 94, "type": "简答题", "section": "神界篇（红石山·拜师·神界新人）", "question": "东伯雪鹰进入神界后经历了什么？神界的势力格局是怎样的？", "options": {}, "ans": null, "analysis": "东伯雪鹰进入神界后，发现神界的势力格局远比凡人世界复杂得多。神界中有众多势力：神廷、各大府城、各大道统等。他在神界中结识了众多重要人物，包括各府城的年轻人、各道统的弟子等。神界的修行体系和凡人世界截然不同，东伯雪鹰需要重新适应和学习。"}, {"num": 95, "type": "简答题", "section": "神界篇（红石山·拜师·神界新人）", "question": "红石山中的'藤叶世界'考验对东伯雪鹰有什么意义？这些考验锻炼了他哪些方面？", "options": {}, "ans": null, "analysis": "藤叶世界考验是红石山筛选和培养弟子的方式，每个藤叶世界都代表不同的挑战和试炼。这些考验不仅锻炼了东伯雪鹰的战斗能力和修为，更锻炼了他的意志、智慧和领导力。在与同伴们的合作与竞争中，他学会了团队协作、策略规划和面对生死时的冷静判断，这些都为他后续在神界和更高层次世界的生存和成长奠定了重要基础。"}, {"num": 96, "type": "多选题", "section": "神界篇（红石山·拜师·神界新人）", "question": "关于红石山的考验体系，以下哪些说法是正确的？（多选）", "options": {"A": "分为多个'藤叶世界'", "B": "从第一藤叶到第五藤叶难度递增", "C": "只有一个人能通过所有考验", "D": "辰九是飞剑山庄的庄主之子"}, "ans": "ABD", "analysis": "并非只有一个人能通过所有考验，多人通过了考验。C选项错误。"}, {"num": 97, "type": "简答题", "section": "神界篇（红石山·拜师·神界新人）", "question": "从凡人世界到神界，东伯雪鹰的身份和处境发生了怎样的变化？这种变化对故事发展有什么意义？", "options": {}, "ans": null, "analysis": "从凡人世界的雪鹰领少主/领主，到红石山的护法弟子，再到神界的新人。身份从一个地方的保护者变成了一个更大世界中的学习者。这种变化标志着故事舞台的扩大和叙事层次的提升，也意味着东伯雪鹰面临的挑战和敌人将变得更加强大和复杂，推动故事进入更宏大的篇章。"}, {"num": 98, "type": "简答题", "section": "神界篇（红石山·拜师·神界新人）", "question": "梅山主人这个人物有什么背景故事？他在红石山考验中扮演了什么角色？", "options": {}, "ans": null, "analysis": "梅山主人在时空神殿经历过无数生死，是一位经验丰富的强者。他在红石山中既是东伯雪鹰的竞争对手也是同伴，他的存在帮助东伯雪鹰在战斗中不断突破自我。梅山主人的经历和实力也为东伯雪鹰提供了学习和参考的对象。"}, {"num": 99, "type": "多选题", "section": "神界篇（红石山·拜师·神界新人）", "question": "关于红石山中的同伴，以下哪些说法是正确的？（多选）", "options": {"A": "辰九是飞剑山庄庄主之子", "B": "剑皇是一位剑道天才", "C": "梅山主人在时空神殿经历过无数生死", "D": "所有人都通过了所有考验"}, "ans": "ABC", "analysis": "并非所有人都通过了所有考验，有的成功有的陨落。D选项错误。"}, {"num": 100, "type": "简答题", "section": "神界篇（红石山·拜师·神界新人）", "question": "请分析红石山篇在整部小说中的叙事功能。它如何为后续篇章做铺垫？", "options": {}, "ans": null, "analysis": "红石山篇是东伯雪鹰从'凡人强者'向'神界强者'转变的关键过渡篇。它在叙事上承担了三个功能：1）为东伯雪鹰提供更高层次的功法传承（万劫混元经等），解决他在凡人世界修行瓶颈的问题；2）通过藤叶世界考验培养他的实战经验和领导力；3）引入神界世界观和更多人物关系网，为后续神界篇、纵横篇等更大舞台的故事做好人物和设定铺垫。"}, {"num": 101, "type": "简答题", "section": "神界篇（红石山·拜师·神界新人）", "question": "红石山作为一件神器坠落到凡人世界，这个设定在整个世界观中有什么深层含义？", "options": {}, "ans": null, "analysis": "红石山作为神界神器坠落到凡人世界，暗示了神界与凡人世界之间存在着某种联系和通道。这也为东伯雪鹰提供了一个从凡人世界通往神界的'桥梁'——他通过红石山的考验获得了进入神界的资格和能力。从叙事角度看，红石山既是修炼圣地也是剧情推进器，它让东伯雪鹰在凡人世界篇结束后能够自然地过渡到神界篇，而不需要突兀的转场。"}, {"num": 102, "type": "单选题", "section": "神界篇（红石山·拜师·神界新人）", "question": "红石山实际上是什么？", "options": {"A": "一座普通山脉", "B": "一件来自神界的神器", "C": "一个天然修炼圣地", "D": "龙族遗迹"}, "ans": "B", "analysis": "红石山实际上是一件来自神界的恐怖神器，坠落到凡人世界后变成了修炼圣地。"}, {"num": 103, "type": "简答题", "section": "神界篇（红石山·拜师·神界新人）", "question": "东伯雪鹰在红石山中的同伴们各自有什么背景和结局？这些人物对主角有什么意义？", "options": {}, "ans": null, "analysis": "辰九是飞剑山庄庄主之子，背负家族命运前来冒险；剑皇是剑道天才；梅山主人在时空神殿经历过无数生死。他们在红石山中既是竞争对手也是生死同伴。这些人物的存在丰富了故事层次，他们的成功或陨落都让东伯雪鹰认识到修行的残酷和珍贵，也让他更加珍惜同伴、坚定前行的决心。"}, {"num": 104, "type": "多选题", "section": "神界篇（红石山·拜师·神界新人）", "question": "关于东伯雪鹰在神界的新生活，以下哪些是正确的？（多选）", "options": {"A": "神界势力格局复杂", "B": "他结识了各府城的年轻人", "C": "修行体系与凡人世界相同", "D": "他需要重新适应和学习"}, "ans": "ABD", "analysis": "神界的修行体系与凡人世界截然不同，不是相同的。C选项错误。"}, {"num": 105, "type": "多选题", "section": "神界篇（红石山·拜师·神界新人）", "question": "关于辰九这个人物，以下哪些说法是正确的？（多选）", "options": {"A": "他是飞剑山庄庄主之子", "B": "他背负着家族命运前来红石山冒险", "C": "他最终成为了东伯雪鹰的师傅", "D": "他在红石山中与东伯雪鹰是竞争对手"}, "ans": "ABD", "analysis": "辰九是东伯雪鹰的同伴和竞争对手，不是他的师傅。C选项错误。"}, {"num": 106, "type": "单选题", "section": "神界篇（红石山·拜师·神界新人）", "question": "东伯雪鹰在红石山中的修行速度如何？", "options": {"A": "很慢需要多年", "B": "正常速度", "C": "极快被誉为万年来最具天赋的弟子之一", "D": "没有进步"}, "ans": "C", "analysis": "东伯雪鹰的修行速度之快让红石山内的强者们都感到震惊，被认为是万年来最具天赋的弟子之一。"}, {"num": 107, "type": "简答题", "section": "神界篇（红石山·拜师·神界新人）", "question": "本章中出现的宝物/功法对主角后续成长有什么作用？", "options": {}, "ans": null, "analysis": "开放性题目，选择本章中出现的任意宝物或功法，分析其对主角实力提升和剧情推进的作用即可。"}, {"num": 108, "type": "多选题", "section": "神界篇（红石山·拜师·神界新人）", "question": "以下哪些是东伯雪鹰的重要品质？（多选）", "options": {"A": "勤奋刻苦", "B": "爱护家人", "C": "独立思考", "D": "依赖学院教育"}, "ans": "ABC", "analysis": "东伯雪鹰不依赖学院教育，他选择了自己摸索的道路。D选项错误。"}, {"num": 109, "type": "单选题", "section": "神界篇（红石山·拜师·神界新人）", "question": "东伯雪鹰最核心的修行理念是什么？", "options": {"A": "依赖他人指导", "B": "走自己的路，独立摸索", "C": "只靠天赋", "D": "放弃修行"}, "ans": "B", "analysis": "东伯雪鹰的核心理念是走自己的路，不依赖他人指引，通过自己的摸索和领悟变强。"}, {"num": 110, "type": "简答题", "section": "神界篇（红石山·拜师·神界新人）", "question": "本章中哪个配角给你留下了深刻印象？为什么？", "options": {}, "ans": null, "analysis": "开放性题目，选择任意配角进行分析，说明其性格特点和对主角/剧情的作用即可。"}, {"num": 111, "type": "简答题", "section": "神界篇（红石山·拜师·神界新人）", "question": "请结合本章内容，分析东伯雪鹰做出的某个重要决定及其影响。", "options": {}, "ans": null, "analysis": "开放性题目，选择本章中主角的一个重要决定进行分析，说明决定的原因和后续影响即可。"}, {"num": 112, "type": "简答题", "section": "神界篇（红石山·拜师·神界新人）", "question": "本章中出现的宝物/功法对主角后续成长有什么作用？", "options": {}, "ans": null, "analysis": "开放性题目，选择本章中出现的任意宝物或功法，分析其对主角实力提升和剧情推进的作用即可。 第六关：纵横篇（监察使·深渊·帝君之路）"}, {"num": 113, "type": "简答题", "section": "纵横篇（监察使·深渊·帝君之路）", "question": "'监察使'是什么职务？东伯雪鹰为何担任此职？他在监察使任上执行了哪些重要任务？", "options": {}, "ans": null, "analysis": "'监察使'是神界中的一个特殊职务，负责监察各方动态、执行特殊任务。东伯雪鹰担任此职后，执行了多项重要任务，包括调查恶魔残余势力、追查宝物下落、处理各方势力纠纷等。这些任务让他深入了解了神界的黑暗面和复杂势力关系，也积累了大量实战经验和人脉。"}, {"num": 114, "type": "简答题", "section": "纵横篇（监察使·深渊·帝君之路）", "question": "东伯雪鹰是如何成为'东伯帝君'的？这个称号意味着什么？", "options": {}, "ans": null, "analysis": "东伯雪鹰通过漫长的修行和一次次生死战斗，逐步突破到'帝君'级别。这个称号意味着他已经是神界中顶尖的强者之一。在成为帝君的过程中，他经历了多次重大突破：从圣级到半神、从半神到神灵、从神灵到帝君，每一次突破都伴随着生死考验和心境蜕变。他的核心优势在于过人的天赋、丰富的战斗经验、以及多位强者的指导和馈赠。"}, {"num": 115, "type": "单选题", "section": "纵横篇（监察使·深渊·帝君之路）", "question": "东伯雪鹰担任什么职务后深入了解了神界的黑暗面？", "options": {"A": "护法弟子", "B": "监察使", "C": "帝君", "D": "尊者"}, "ans": "B", "analysis": "东伯雪鹰担任监察使后深入了解了神界的黑暗面和复杂势力关系。"}, {"num": 116, "type": "简答题", "section": "纵横篇（监察使·深渊·帝君之路）", "question": "深渊世界对东伯雪鹰的成长有什么重要作用？", "options": {}, "ans": null, "analysis": "深渊世界是一个充满黑暗和危险的世界，居住着各类恶魔和黑暗生物。东伯雪鹰在深渊中经历了残酷的环境考验和激烈战斗，锻炼了战斗能力和意志。他也从中获得了珍贵的修炼资源和感悟，这些经历进一步提升了他的综合实力，为他后续突破到更高层次奠定了基础。"}, {"num": 117, "type": "简答题", "section": "纵横篇（监察使·深渊·帝君之路）", "question": "达尔豪在深渊篇中扮演了什么角色？他对东伯雪鹰的深渊之旅有什么影响？", "options": {}, "ans": null, "analysis": "达尔豪是深渊中的一位重要人物，在东伯雪鹰的深渊之旅中提供了重要帮助。他可能是盟友或关键NPC，帮助东伯雪鹰在危险的深渊世界中生存和成长，同时也可能揭示了深渊世界的更多秘密和背景故事。"}, {"num": 118, "type": "多选题", "section": "纵横篇（监察使·深渊·帝君之路）", "question": "关于东伯雪鹰进入深渊的经历，以下哪些说法是正确的？（多选）", "options": {"A": "是为了执行监察使任务", "B": "是为了寻找提升实力的机缘", "C": "深渊中居住着各类恶魔和黑暗生物", "D": "达尔豪是深渊中的敌人"}, "ans": "ABC", "analysis": "达尔豪在深渊中是重要人物，可能是盟友或关键角色，不一定是敌人。D选项需要视具体剧情而定。"}, {"num": 119, "type": "简答题", "section": "纵横篇（监察使·深渊·帝君之路）", "question": "纵横篇在整个故事中起到了什么样的过渡作用？它如何连接神界篇和后续的主宰篇？", "options": {}, "ans": null, "analysis": "纵横篇是东伯雪鹰在神界中从'新人'成长为'顶尖强者'的关键篇章。它通过监察使任务和深渊历练，让东伯雪鹰积累了实力、人脉和经验，同时也揭示了神界更深层的势力格局和秘密。这些积累为他后续挑战尊者、主宰等更高境界做好了实力和背景上的铺垫，是连接神界新人阶段和后续主宰阶段的重要桥梁。"}, {"num": 120, "type": "简答题", "section": "纵横篇（监察使·深渊·帝君之路）", "question": "请分析东伯雪鹰的性格在纵横篇中有哪些成长变化？", "options": {}, "ans": null, "analysis": "在纵横篇中，东伯雪鹰从一个热血冲动的年轻人逐渐成长为沉稳冷静的强者。监察使的任务让他见识了神界的黑暗面和人心复杂，使他学会了在复杂局势中权衡利弊、审慎决策。深渊的历练进一步磨练了他的意志和战斗本能。他开始更加注重策略而非蛮力，更加重视同伴但也学会了独自承担，展现出了领导者应有的格局和担当。"}, {"num": 121, "type": "多选题", "section": "纵横篇（监察使·深渊·帝君之路）", "question": "关于东伯雪鹰成为帝君的过程，以下哪些是正确的？（多选）", "options": {"A": "经历了从圣级到半神的突破", "B": "经历了从半神到神灵的突破", "C": "经历了从神灵到帝君的突破", "D": "一次性直接突破到帝君"}, "ans": "ABC", "analysis": "东伯雪鹰是逐步突破的，不是一次性直接突破到帝君。D选项错误。"}, {"num": 122, "type": "简答题", "section": "纵横篇（监察使·深渊·帝君之路）", "question": "深渊中的黑暗环境对东伯雪鹰的心境有什么影响？这种影响如何体现在他后续的决策中？", "options": {}, "ans": null, "analysis": "深渊的黑暗环境让东伯雪鹰直面了修行世界中残酷的一面——弱肉强食、背叛与欺骗、生死一线的恐惧。这些经历让他变得更加坚韧和冷静，不再像早期那样理想化。在后续决策中，他更能理性分析局势，不被情感完全左右，同时也更加珍惜身边的同伴和正义的信念，形成了'知世故而不世故'的成熟心态。"}, {"num": 123, "type": "简答题", "section": "纵横篇（监察使·深渊·帝君之路）", "question": "监察使这个职务在神界权力结构中处于什么位置？担任此职对东伯雪鹰的政治影响力有什么帮助？", "options": {}, "ans": null, "analysis": "监察使在神界权力结构中属于执行层面的特殊职务，虽然可能不是最高决策层，但拥有广泛的监察权和行动权。担任此职让东伯雪鹰能够合法地进入神界各个角落执行任务，接触各方势力，建立人脉关系网。这种'合法身份'为他后续在神界的活动提供了便利和保护，也让他从'外来者'逐渐变为'有身份的人'。"}, {"num": 124, "type": "单选题", "section": "纵横篇（监察使·深渊·帝君之路）", "question": "'帝君'这个称号意味着东伯雪鹰在神界中是什么地位？", "options": {"A": "普通强者", "B": "顶尖强者之一", "C": "最弱者", "D": "管理者"}, "ans": "B", "analysis": "帝君称号意味着他已经是神界中顶尖的强者之一。"}, {"num": 125, "type": "简答题", "section": "纵横篇（监察使·深渊·帝君之路）", "question": "深渊世界在整个小说世界观中是什么存在？它与神界和凡人世界是什么关系？", "options": {}, "ans": null, "analysis": "深渊世界是一个充满黑暗和危险的世界，居住着各类恶魔和黑暗生物。它是与神界、凡人世界并列的另一个维度/世界。深渊与神界之间存在对立关系——恶魔经常试图从深渊入侵其他世界。东伯雪鹰进入深渊既是执行监察使任务，也是寻找提升实力的机缘。深渊的残酷环境锻炼了他的战斗能力和意志。"}, {"num": 126, "type": "多选题", "section": "纵横篇（监察使·深渊·帝君之路）", "question": "关于东伯雪鹰的实力提升路径，以下哪些是正确的？（多选）", "options": {"A": "过人的天赋", "B": "丰富的战斗经验", "C": "多位强者的指导和馈赠", "D": "只靠自己什么都不需要"}, "ans": "ABC", "analysis": "东伯雪鹰的成长离不开天赋、经验和他人帮助，不是什么都不需要。D选项错误。"}, {"num": 127, "type": "多选题", "section": "纵横篇（监察使·深渊·帝君之路）", "question": "关于监察使这个职务，以下哪些是正确的？（多选）", "options": {"A": "是神界中的特殊职务", "B": "负责监察各方动态", "C": "执行特殊任务", "D": "只负责管理凡人世界"}, "ans": "ABC", "analysis": "监察使负责的是神界范围内的监察任务，不只是凡人世界。D选项错误。"}, {"num": 128, "type": "单选题", "section": "纵横篇（监察使·深渊·帝君之路）", "question": "东伯雪鹰在监察使任上执行的任务不包括以下哪项？", "options": {"A": "调查恶魔残余势力", "B": "追查宝物下落", "C": "管理雪鹰领的日常事务", "D": "处理各方势力纠纷"}, "ans": "C", "analysis": "管理雪鹰领日常事务不是监察使的任务，监察使负责的是更高层次的神界事务。"}, {"num": 129, "type": "简答题", "section": "纵横篇（监察使·深渊·帝君之路）", "question": "请结合本章内容，分析东伯雪鹰做出的某个重要决定及其影响。", "options": {}, "ans": null, "analysis": "开放性题目，选择本章中主角的一个重要决定进行分析，说明决定的原因和后续影响即可。"}, {"num": 130, "type": "简答题", "section": "纵横篇（监察使·深渊·帝君之路）", "question": "本章中出现的宝物/功法对主角后续成长有什么作用？", "options": {}, "ans": null, "analysis": "开放性题目，选择本章中出现的任意宝物或功法，分析其对主角实力提升和剧情推进的作用即可。"}, {"num": 131, "type": "多选题", "section": "纵横篇（监察使·深渊·帝君之路）", "question": "以下哪些是东伯雪鹰的重要品质？（多选）", "options": {"A": "勤奋刻苦", "B": "爱护家人", "C": "独立思考", "D": "依赖学院教育"}, "ans": "ABC", "analysis": "东伯雪鹰不依赖学院教育，他选择了自己摸索的道路。D选项错误。"}, {"num": 132, "type": "单选题", "section": "纵横篇（监察使·深渊·帝君之路）", "question": "东伯雪鹰最核心的修行理念是什么？", "options": {"A": "依赖他人指导", "B": "走自己的路，独立摸索", "C": "只靠天赋", "D": "放弃修行"}, "ans": "B", "analysis": "东伯雪鹰的核心理念是走自己的路，不依赖他人指引，通过自己的摸索和领悟变强。"}, {"num": 133, "type": "简答题", "section": "纵横篇（监察使·深渊·帝君之路）", "question": "本章中哪个配角给你留下了深刻印象？为什么？", "options": {}, "ans": null, "analysis": "开放性题目，选择任意配角进行分析，说明其性格特点和对主角/剧情的作用即可。"}, {"num": 134, "type": "简答题", "section": "纵横篇（监察使·深渊·帝君之路）", "question": "请结合本章内容，分析东伯雪鹰做出的某个重要决定及其影响。", "options": {}, "ans": null, "analysis": "开放性题目，选择本章中主角的一个重要决定进行分析，说明决定的原因和后续影响即可。 第七关：主宰篇（黑葫芦·血染飞舟·最强尊者）"}, {"num": 135, "type": "简答题", "section": "主宰篇（黑葫芦·血染飞舟·最强尊者）", "question": "'黑葫芦'是什么？东伯雪鹰是如何获得它的？黑葫芦中隐藏着什么秘密？", "options": {}, "ans": null, "analysis": "'黑葫芦'是一件来自神界的珍贵宝物/神器，其中隐藏着一个独立的微观世界或传承空间。东伯雪鹰通过某种机缘获得了黑葫芦的控制权。黑葫芦中可能隐藏着某位前辈强者的传承、珍贵的修炼资源、或者特殊的空间能力。它对东伯雪鹰的实力提升有关键作用，可能是他突破到更高境界的重要助力。"}, {"num": 136, "type": "简答题", "section": "主宰篇（黑葫芦·血染飞舟·最强尊者）", "question": "'血染飞舟'篇中，混沌飞舟的主人是谁？东伯雪鹰在其中获得了什么传承？", "options": {}, "ans": null, "analysis": "'血染飞舟'篇中，东伯雪鹰获得了一艘名为'混沌飞舟'的神秘战船。这艘飞舟的原主人可能是一位强大的存在，飞舟中隐藏着丰富的传承和宝物。东伯雪鹰在驾驭飞舟的过程中，不仅获得了强大的交通工具，还获得了与飞舟相关的战斗秘术和修炼感悟。这艘飞舟后来成为东伯雪鹰在宇宙中闯荡的重要依仗。"}, {"num": 137, "type": "单选题", "section": "主宰篇（黑葫芦·血染飞舟·最强尊者）", "question": "黑葫芦是什么级别的宝物？", "options": {"A": "凡器", "B": "神界珍贵宝物/神器", "C": "普通法器", "D": "武器"}, "ans": "B", "analysis": "黑葫芦是一件来自神界的珍贵宝物/神器。"}, {"num": 138, "type": "简答题", "section": "主宰篇（黑葫芦·血染飞舟·最强尊者）", "question": "东伯雪鹰是如何成为尊者的？始祖魔山是什么地方？他在其中经历了什么考验？", "options": {}, "ans": null, "analysis": "东伯雪鹰在始祖魔山中经历了残酷的考验和战斗，通过不断突破自身极限成为了'尊者'级别的存在。始祖魔山是一个充满挑战和机缘的圣地，其中居住着古老的强者传承和试炼。东伯雪鹰在其中的战斗让他对力量的理解达到了新的高度，也为后续成为更高层次的存在奠定了基础。"}, {"num": 139, "type": "简答题", "section": "主宰篇（黑葫芦·血染飞舟·最强尊者）", "question": "主宰篇中东伯雪鹰的实力提升主要体现在哪些方面？这些提升对他后续挑战更高境界有什么意义？", "options": {}, "ans": null, "analysis": "主宰篇中东伯雪鹰的实力提升主要体现在：1）获得黑葫芦中的传承和资源，拓宽了修行底蕴；2）驾驭混沌飞舟获得战斗秘术和空间能力；3）在始祖魔山中突破到尊者级别，对力量有了更深理解。这些提升为他后续挑战主宰级别奠定了坚实的实力基础，同时也让他在战斗经验和心境上更加成熟。"}, {"num": 140, "type": "多选题", "section": "主宰篇（黑葫芦·血染飞舟·最强尊者）", "question": "关于'血染飞舟'篇，以下哪些说法是正确的？（多选）", "options": {"A": "东伯雪鹰获得了一艘神秘的战船", "B": "飞舟原主人可能是一位强大的存在", "C": "飞舟中隐藏着丰富的传承和宝物", "D": "飞舟只能在宇宙中使用不能在空间中使用"}, "ans": "ABC", "analysis": "飞舟作为神器应该能在多种环境中使用，D选项的限制不一定成立。"}, {"num": 141, "type": "简答题", "section": "主宰篇（黑葫芦·血染飞舟·最强尊者）", "question": "请分析主宰篇在整个小说权力结构中的位置。尊者、主宰、领主之间的等级关系是怎样的？", "options": {}, "ans": null, "analysis": "主宰篇处于小说中后期，是东伯雪鹰从'强者'向'至高存在'迈进的关键阶段。根据小说设定，修行等级大致为：尊者→主宰→领主（浑源空间最高级别）。尊者是宇宙中顶尖的存在之一，主宰则是更高层次的存在，而领主是无限浑源空间中最强大的生命体。东伯雪鹰在主宰篇中突破到尊者，为后续挑战主宰和最终的领主之位铺平了道路。"}, {"num": 142, "type": "简答题", "section": "主宰篇（黑葫芦·血染飞舟·最强尊者）", "question": "黑葫芦、混沌飞舟、始祖魔山这三个元素在主宰篇中是如何相互关联推动剧情的？", "options": {}, "ans": null, "analysis": "这三个元素分别代表了东伯雪鹰在主宰篇中获得的三种不同类型的助力：黑葫芦提供了神秘的传承和空间能力（知识/资源层面）；混沌飞舟提供了强大的移动工具和战斗秘术（战力/机动层面）；始祖魔山提供了突破境界的考验（境界/实力层面）。三者相互配合，从不同维度提升了东伯雪鹰的综合实力，共同推动他向尊者境界迈进，也为后续更高层次的挑战做好了全面准备。"}, {"num": 143, "type": "多选题", "section": "主宰篇（黑葫芦·血染飞舟·最强尊者）", "question": "关于'最强尊者'篇，以下哪些说法是正确的？（多选）", "options": {"A": "东伯雪鹰在始祖魔山中经历了考验", "B": "他通过不断突破自身极限成为了尊者", "C": "始祖魔山是一个充满挑战和机缘的圣地", "D": "尊者是最高的境界不需要再突破"}, "ans": "ABC", "analysis": "尊者之上还有更高层次的境界，不是最高境界。D选项错误。"}, {"num": 144, "type": "简答题", "section": "主宰篇（黑葫芦·血染飞舟·最强尊者）", "question": "黑葫芦、混沌飞舟和始祖魔山这三个元素分别代表了东伯雪鹰成长的哪个方面？请综合分析。", "options": {}, "ans": null, "analysis": "黑葫芦代表'传承与资源'——来自前辈强者的遗产和神秘空间能力，拓宽了东伯雪鹰的知识面和手段；混沌飞舟代表'战力与机动'——强大的交通工具和战斗秘术，提升了他的实战能力和活动范围；始祖魔山代表'境界突破'——残酷的考验环境逼迫他突破自身极限。三者分别对应'知识储备''实战能力''境界修为'三个维度，共同构成了东伯雪鹰向尊者突破的完整支撑体系。"}, {"num": 145, "type": "简答题", "section": "主宰篇（黑葫芦·血染飞舟·最强尊者）", "question": "主宰篇中的各种宝物和机缘对东伯雪鹰最终成为领主有什么铺垫作用？", "options": {}, "ans": null, "analysis": "主宰篇中的宝物和机缘为东伯雪鹰成为领主奠定了多方面基础：黑葫芦提供的传承可能包含关于浑源空间或更高境界的知识；混沌飞舟赋予的空间能力可能在宇宙级战斗中有用；始祖魔山的考验让他理解了力量的本质。这些积累让他在面对主宰级别和最终的领主挑战时，有足够的底蕴和手段去应对。"}, {"num": 146, "type": "单选题", "section": "主宰篇（黑葫芦·血染飞舟·最强尊者）", "question": "东伯雪鹰在哪个地方经历了成为尊者的考验？", "options": {"A": "红石山", "B": "始祖魔山", "C": "黑风神宫", "D": "深渊"}, "ans": "B", "analysis": "东伯雪鹰在始祖魔山中经历了成为尊者的考验。"}, {"num": 147, "type": "多选题", "section": "主宰篇（黑葫芦·血染飞舟·最强尊者）", "question": "关于混沌飞舟，以下哪些是正确的？（多选）", "options": {"A": "是一艘神秘的战船", "B": "原主人是一位强大存在", "C": "隐藏着传承和宝物", "D": "是东伯雪鹰在宇宙中闯荡的重要依仗"}, "ans": "ABCD", "analysis": "混沌飞舟具备以上所有特征，是东伯雪鹰的重要依仗。"}, {"num": 148, "type": "多选题", "section": "主宰篇（黑葫芦·血染飞舟·最强尊者）", "question": "关于东伯雪鹰获得的各种宝物，以下哪些是正确的？（多选）", "options": {"A": "黑葫芦", "B": "混沌飞舟", "C": "储物吊坠", "D": "玄冰枪法秘籍"}, "ans": "ABCD", "analysis": "这些都是东伯雪鹰在不同阶段获得的重要宝物或传承。"}, {"num": 149, "type": "单选题", "section": "主宰篇（黑葫芦·血染飞舟·最强尊者）", "question": "始祖魔山对东伯雪鹰的意义是什么？", "options": {"A": "只是一个普通的修炼场所", "B": "让他对力量理解达到新高并突破到尊者的圣地", "C": "是他小时候玩耍的地方", "D": "是墨阳家族的产业"}, "ans": "B", "analysis": "始祖魔山是让东伯雪鹰对力量理解达到新高度并突破到尊者的圣地。"}, {"num": 150, "type": "简答题", "section": "主宰篇（黑葫芦·血染飞舟·最强尊者）", "question": "本章中哪个配角给你留下了深刻印象？为什么？", "options": {}, "ans": null, "analysis": "开放性题目，选择任意配角进行分析，说明其性格特点和对主角/剧情的作用即可。"}, {"num": 151, "type": "简答题", "section": "主宰篇（黑葫芦·血染飞舟·最强尊者）", "question": "请结合本章内容，分析东伯雪鹰做出的某个重要决定及其影响。", "options": {}, "ans": null, "analysis": "开放性题目，选择本章中主角的一个重要决定进行分析，说明决定的原因和后续影响即可。"}, {"num": 152, "type": "简答题", "section": "主宰篇（黑葫芦·血染飞舟·最强尊者）", "question": "本章中出现的宝物/功法对主角后续成长有什么作用？", "options": {}, "ans": null, "analysis": "开放性题目，选择本章中出现的任意宝物或功法，分析其对主角实力提升和剧情推进的作用即可。"}, {"num": 153, "type": "多选题", "section": "主宰篇（黑葫芦·血染飞舟·最强尊者）", "question": "以下哪些是东伯雪鹰的重要品质？（多选）", "options": {"A": "勤奋刻苦", "B": "爱护家人", "C": "独立思考", "D": "依赖学院教育"}, "ans": "ABC", "analysis": "东伯雪鹰不依赖学院教育，他选择了自己摸索的道路。D选项错误。"}, {"num": 154, "type": "单选题", "section": "主宰篇（黑葫芦·血染飞舟·最强尊者）", "question": "东伯雪鹰最核心的修行理念是什么？", "options": {"A": "依赖他人指导", "B": "走自己的路，独立摸索", "C": "只靠天赋", "D": "放弃修行"}, "ans": "B", "analysis": "东伯雪鹰的核心理念是走自己的路，不依赖他人指引，通过自己的摸索和领悟变强。 第八关：至高篇（主宰·镇宫绝学·混沌城·我心为天心）"}, {"num": 155, "type": "简答题", "section": "至高篇（主宰·镇宫绝学·混沌城·我心为天心）", "question": "东伯雪鹰是如何成为'主宰'的？成为主宰需要什么条件？他在成为主宰的过程中做出了什么重要抉择？", "options": {}, "ans": null, "analysis": "东伯雪鹰成为'主宰'需要领悟至高规则、掌握多道合一的奥义、并通过严格的考验。成为主宰意味着他已经是宇宙中顶尖的存在之一。在这个过程中，他做出了重要的抉择：可能放弃了某些安逸的选择，选择了更艰难的修行道路；也可能在感情和修行之间做出了取舍。主宰之路要求修行者不仅要实力强大，更要心境圆满。"}, {"num": 156, "type": "简答题", "section": "至高篇（主宰·镇宫绝学·混沌城·我心为天心）", "question": "'镇宫绝学'篇中，太虚天宫是什么地方？剑主是谁？东伯雪鹰在其中学到了什么绝学？", "options": {}, "ans": null, "analysis": "'镇宫绝学'篇中，太虚天宫是宇宙中一个重要的修行圣地和势力中心，汇聚了各路强者。剑主是太虚天宫中的顶尖强者之一，以剑道闻名。东伯雪鹰在太虚天宫中向剑主请教剑道，或者获得了镇宫级别的绝学传承。这些绝学进一步丰富了他的战斗手段，让他在实战中更加游刃有余。"}, {"num": 157, "type": "单选题", "section": "至高篇（主宰·镇宫绝学·混沌城·我心为天心）", "question": "成为主宰需要什么条件？", "options": {"A": "只需要实力强大", "B": "领悟至高规则、掌握多道合一奥义并通过考验", "C": "只需要背景强大", "D": "只需要运气好"}, "ans": "B", "analysis": "成为主宰需要领悟至高规则、掌握多道合一的奥义、并通过严格的考验。"}, {"num": 158, "type": "简答题", "section": "至高篇（主宰·镇宫绝学·混沌城·我心为天心）", "question": "'我心为天心'篇中，东伯雪鹰的修为达到了什么层次？天剑山是什么地方？他在其中获得了什么重要机缘？", "options": {}, "ans": null, "analysis": "'我心为天心'篇中，东伯雪鹰的修为达到了'我心为天心'的境界——这是一种心灵和意志的极致状态，意味着他的内心已经达到与天道合一的境界。天剑山是一个与剑道相关的修炼圣地。东伯雪鹰在其中获得了关于剑道的终极感悟，创出了属于自己的绝世剑法。这个篇章标志着他在修行道路上又迈出了关键一步。"}, {"num": 159, "type": "简答题", "section": "至高篇（主宰·镇宫绝学·混沌城·我心为天心）", "question": "至高篇在整个小说中处于什么位置？它如何为最终结局做铺垫？", "options": {}, "ans": null, "analysis": "至高篇处于小说后期，是东伯雪鹰从'尊者'迈向'领主'的关键过渡篇章。成为主宰是他实力上的重大飞跃，而'镇宫绝学'和'我心为天心'等篇章则分别从剑道和心境两个维度完善了他的综合能力。这些积累为他最终进入浑源空间、挑战领主之位做好了最后的准备，是通向大结局的最后冲刺阶段。"}, {"num": 160, "type": "多选题", "section": "至高篇（主宰·镇宫绝学·混沌城·我心为天心）", "question": "关于'镇宫绝学'篇，以下哪些说法是正确的？（多选）", "options": {"A": "太虚天宫是宇宙中重要的修行圣地", "B": "剑主是太虚天宫中的顶尖强者", "C": "东伯雪鹰在太虚天宫获得了镇宫级别的绝学传承", "D": "太虚天宫只招收人类弟子"}, "ans": "ABC", "analysis": "太虚天宫作为修行圣地可能招收各族弟子，不一定只招收人类。D选项不一定正确。"}, {"num": 161, "type": "简答题", "section": "至高篇（主宰·镇宫绝学·混沌城·我心为天心）", "question": "东伯雪鹰在至高篇中获得的剑道感悟对他最终战胜强敌有什么关键作用？", "options": {}, "ans": null, "analysis": "剑道感悟让东伯雪鹰在战斗中获得了一种超越单纯力量比拼的更高维度能力。剑道代表着'斩断一切'的决意和'一击必杀'的极致效率，这使他在面对远超自己实力的对手时，能够找到突破对方防御的关键点。同时'我心为天心'的心境让他不受外界干扰，专注于自己的道路，这种心境+剑道的结合成为他日后战胜更强对手的核心底牌之一。"}, {"num": 162, "type": "简答题", "section": "至高篇（主宰·镇宫绝学·混沌城·我心为天心）", "question": "请比较东伯雪鹰在凡人篇、神界篇和至高篇中修行方式的差异，分析这种变化反映了什么？", "options": {}, "ans": null, "analysis": "凡人篇：靠苦练和基础功法打根基（枪法+斗气）；神界篇：获得高级功法和系统指导（万劫混元经+界神指导）；至高篇：领悟至高规则和剑道奥义（自主感悟+心境突破）。这种变化反映了修行体系从'外力辅助'到'内力觉醒'的升华，也体现了小说核心主题——真正的强者最终要走自己的路。从依赖父亲传承的枪法，到依赖师傅传授的功法，最终到自身领悟至高规则，完成了'传承→学习→创新'的完整成长弧。"}, {"num": 163, "type": "多选题", "section": "至高篇（主宰·镇宫绝学·混沌城·我心为天心）", "question": "关于'我心为天心'篇，以下哪些说法是正确的？（多选）", "options": {"A": "'我心为天心'是一种心灵和意志的极致状态", "B": "意味着内心达到与天道合一的境界", "C": "天剑山是与剑道相关的修炼圣地", "D": "此篇中东伯雪鹰成为了领主"}, "ans": "ABC", "analysis": "此篇中东伯雪鹰尚未成为领主，成为领主是大结局的内容。D选项错误。"}, {"num": 164, "type": "简答题", "section": "至高篇（主宰·镇宫绝学·混沌城·我心为天心）", "question": "主宰和领主之间还有什么差距？东伯雪鹰需要克服什么才能从主宰突破到领主？", "options": {}, "ans": null, "analysis": "主宰是宇宙层面的顶尖存在，而领主是无限浑源空间中最强大的生命体，两者之间存在着本质的差距。从主宰到领主的突破需要：1）进入浑源空间这个更高维度的舞台；2）面对天生浑源生命（始祖）级别的对手；3）领悟更高层次的规则和道路；4）可能还需要特殊的机缘和考验。这个突破过程将是东伯雪鹰终极成长的最后一步。"}, {"num": 165, "type": "简答题", "section": "至高篇（主宰·镇宫绝学·混沌城·我心为天心）", "question": "东伯雪鹰在至高篇中同时修习枪道和剑道，这两种武道在他身上的融合有什么特殊意义？", "options": {}, "ans": null, "analysis": "枪道代表东伯雪鹰的根基——从父亲那里继承的《玄冰枪法》，代表他最初的修行道路和初心；剑道代表他在太虚天宫获得的新领悟，代表开放学习和自我突破。两种武道的融合象征着东伯雪鹰'不忘本源又勇于创新'的修行哲学。枪的刚猛直接加上剑的灵动变幻，使他的战斗风格更加全面和不可预测，这也是他能够以弱胜强、不断突破的重要战斗基础。"}, {"num": 166, "type": "单选题", "section": "至高篇（主宰·镇宫绝学·混沌城·我心为天心）", "question": "'我心为天心'代表的是什么？", "options": {"A": "一种枪法招式", "B": "心灵和意志的极致状态", "C": "一件宝物", "D": "一个地名"}, "ans": "B", "analysis": "'我心为天心'是一种心灵和意志的极致状态，意味着内心达到与天道合一的境界。"}, {"num": 167, "type": "简答题", "section": "至高篇（主宰·镇宫绝学·混沌城·我心为天心）", "question": "'我心为天心'这个境界名称有什么深层含义？它如何体现东伯雪鹰的心境成长？", "options": {}, "ans": null, "analysis": "'我心为天心'意味着自己的心就是天的心，自己的意志就是天道的意志。这代表修行者已经达到了内心与天道完全合一的境界——不再需要外求，不再被外界干扰，完全按照自己的本心和道路前行。这完美体现了东伯雪鹰从'被命运推着走'到'自己掌握命运'的心境转变。他不再依赖他人的指引，而是成为了自己的'天'，这正是他一路成长的终极体现。"}, {"num": 168, "type": "多选题", "section": "至高篇（主宰·镇宫绝学·混沌城·我心为天心）", "question": "关于东伯雪鹰成为主宰的过程，以下哪些是正确的？（多选）", "options": {"A": "需要领悟至高规则", "B": "需要掌握多道合一的奥义", "C": "需要通过严格考验", "D": "不需要心境圆满只需要实力"}, "ans": "ABC", "analysis": "成为主宰不仅要求实力强大，更要求心境圆满。D选项错误。"}, {"num": 169, "type": "多选题", "section": "至高篇（主宰·镇宫绝学·混沌城·我心为天心）", "question": "关于太虚天宫，以下哪些是正确的？（多选）", "options": {"A": "是宇宙中重要的修行圣地", "B": "汇聚了各路强者", "C": "剑主是其中的顶尖强者", "D": "只教授攻击类功法"}, "ans": "ABC", "analysis": "太虚天宫作为综合修行圣地应该教授各类功法，不只教授攻击类。D选项错误。"}, {"num": 170, "type": "单选题", "section": "至高篇（主宰·镇宫绝学·混沌城·我心为天心）", "question": "天剑山与什么道相关？", "options": {"A": "枪道", "B": "剑道", "C": "法道", "D": "魔道"}, "ans": "B", "analysis": "天剑山是一个与剑道相关的修炼圣地。"}, {"num": 171, "type": "单选题", "section": "至高篇（主宰·镇宫绝学·混沌城·我心为天心）", "question": "东伯雪鹰最核心的修行理念是什么？", "options": {"A": "依赖他人指导", "B": "走自己的路，独立摸索", "C": "只靠天赋", "D": "放弃修行"}, "ans": "B", "analysis": "东伯雪鹰的核心理念是走自己的路，不依赖他人指引，通过自己的摸索和领悟变强。"}, {"num": 172, "type": "简答题", "section": "至高篇（主宰·镇宫绝学·混沌城·我心为天心）", "question": "本章中哪个配角给你留下了深刻印象？为什么？", "options": {}, "ans": null, "analysis": "开放性题目，选择任意配角进行分析，说明其性格特点和对主角/剧情的作用即可。"}, {"num": 173, "type": "简答题", "section": "至高篇（主宰·镇宫绝学·混沌城·我心为天心）", "question": "请结合本章内容，分析东伯雪鹰做出的某个重要决定及其影响。", "options": {}, "ans": null, "analysis": "开放性题目，选择本章中主角的一个重要决定进行分析，说明决定的原因和后续影响即可。"}, {"num": 174, "type": "简答题", "section": "至高篇（主宰·镇宫绝学·混沌城·我心为天心）", "question": "本章中出现的宝物/功法对主角后续成长有什么作用？", "options": {}, "ans": null, "analysis": "开放性题目，选择本章中出现的任意宝物或功法，分析其对主角实力提升和剧情推进的作用即可。"}, {"num": 175, "type": "多选题", "section": "至高篇（主宰·镇宫绝学·混沌城·我心为天心）", "question": "以下哪些是东伯雪鹰的重要品质？（多选）", "options": {"A": "勤奋刻苦", "B": "爱护家人", "C": "独立思考", "D": "依赖学院教育"}, "ans": "ABC", "analysis": "东伯雪鹰不依赖学院教育，他选择了自己摸索的道路。D选项错误。 第九关：终局篇（古修之始·师傅和徒弟·混沌境·界心令·转世·宇宙神·飞雪大尊·究极·在路上·领主）"}, {"num": 176, "type": "简答题", "section": "终局篇（古修之始·师傅和徒弟·混沌境·界心令·转世·宇宙神·飞雪大尊·究极·在路上·领主）", "question": "'古修之始'篇中，东伯雪鹰在星辰塔第六层经历了什么？石镜是什么？黑帝是谁？", "options": {}, "ans": null, "analysis": "'古修之始'篇中，东伯雪鹰在星辰塔第六层获得了关于古代修行体系的珍贵知识。石镜是一件能够映照修行者内心和潜力的宝物。黑帝是星辰塔中的重要存在（可能是塔的守护者或古代强者的灵魂），他在东伯雪鹰的修行道路上提供了关键的指引和考验。"}, {"num": 177, "type": "简答题", "section": "终局篇（古修之始·师傅和徒弟·混沌境·界心令·转世·宇宙神·飞雪大尊·究极·在路上·领主）", "question": "'师傅和徒弟'篇中，东伯雪鹰的师傅是谁？他收了多少徒弟？这些徒弟在后续剧情中扮演了什么角色？", "options": {}, "ans": null, "analysis": "'师傅和徒弟'篇中，东伯雪鹰的师傅可能是某位混沌境或更高境界的强者（如千眼宫主、雷塔主等）。他收了徒弟，其中最著名的可能包括邢火荀等人。这些徒弟在后续剧情中各自成长，有的成为一方强者，有的在东伯雪鹰的关键战斗中提供帮助。师徒之间的情感描写也是本篇的重要看点。"}, {"num": 178, "type": "单选题", "section": "终局篇（古修之始·师傅和徒弟·混沌境·界心令·转世·宇宙神·飞雪大尊·究极·在路上·领主）", "question": "东伯雪鹰在星辰塔的哪一层获得了关于古代修行体系的珍贵知识？", "options": {"A": "第五层", "B": "第六层", "C": "第七层", "D": "第四层"}, "ans": "B", "analysis": "东伯雪鹰在星辰塔第六层获得了关于古代修行体系的珍贵知识。"}, {"num": 179, "type": "简答题", "section": "终局篇（古修之始·师傅和徒弟·混沌境·界心令·转世·宇宙神·飞雪大尊·究极·在路上·领主）", "question": "'混沌境'篇中，东伯雪鹰是如何突破到混沌境的？九云帝君的四幅图是什么？", "options": {}, "ans": null, "analysis": "东伯雪鹰通过漫长的积累和关键时刻的突破，成功突破到混沌境。九云帝君的四幅图是四件蕴含至高规则的宝物/绝学，它们分别代表了不同的修行道路和规则奥妙。这些宝物在东伯雪鹰的成长中起了关键作用：帮助他理解不同的规则体系、提升综合实力、以及在关键时刻扭转战局。"}, {"num": 180, "type": "简答题", "section": "终局篇（古修之始·师傅和徒弟·混沌境·界心令·转世·宇宙神·飞雪大尊·究极·在路上·领主）", "question": "'界心令'篇中，界心令是什么？东伯雪鹰为何会'死'一次？这个'死'有什么深层含义？", "options": {}, "ans": null, "analysis": "'界心令'是一件蕴含世界核心力量的令牌，可能是通往更高境界的钥匙或某个重要世界的通行证。赤眉山主是界心大陆上的重要势力人物。东伯雪鹰'死'过一次——这可能是一次假死、灵魂转世、或者是在某种特殊空间中的'死亡体验'。这个'死'的深层含义是：只有经历真正的'死亡'，才能放下执念、突破心境、达到更高的修行境界。这是修行者的一种终极磨砺。"}, {"num": 181, "type": "多选题", "section": "终局篇（古修之始·师傅和徒弟·混沌境·界心令·转世·宇宙神·飞雪大尊·究极·在路上·领主）", "question": "关于'师傅和徒弟'篇，以下哪些说法是正确的？（多选）", "options": {"A": "东伯雪鹰收了徒弟", "B": "他的师傅可能是某位混沌境或更高境界的强者", "C": "徒弟们在后续剧情中各自成长", "D": "东伯雪鹰从来没有当过师傅"}, "ans": "ABC", "analysis": "东伯雪鹰确实收了徒弟，D选项错误。"}, {"num": 182, "type": "简答题", "section": "终局篇（古修之始·师傅和徒弟·混沌境·界心令·转世·宇宙神·飞雪大尊·究极·在路上·领主）", "question": "'转世'篇中，东伯雪鹰为何要转世？他转世到了什么地方？这具身体的身世是什么？", "options": {}, "ans": null, "analysis": "东伯雪鹰转世是因为某种不得已的原因（可能是为了躲避强敌、修炼特殊功法、或者世界毁灭后的重生）。他转世到了界心大陆，这具身体的身世不凡——可能是某个大国侯府的小公子，体内蕴含着多种古老血脉。转世后的东伯雪鹰虽然失去了大部分力量和记忆，但他凭借过人的天赋和前世积累，很快重新崛起，再次展现出惊世之才。"}, {"num": 183, "type": "简答题", "section": "终局篇（古修之始·师傅和徒弟·混沌境·界心令·转世·宇宙神·飞雪大尊·究极·在路上·领主）", "question": "'宇宙神'篇中，东伯雪鹰是如何成为宇宙神的？他的'虚界宇宙'有什么特殊之处？", "options": {}, "ans": null, "analysis": "东伯雪鹰通过领悟'虚界幻境'道路的终极奥妙，成功突破到宇宙神境界。他的'虚界宇宙'特殊之处在于：它是一个虚幻的宇宙（而非真实宇宙），内部时间流速可以加快上万倍，体积比真实宇宙大上万倍，而且他可以将虚界宇宙中的生命或物品'降临真实'。樊氏是界心大陆上最顶尖的势力之一，掌握着许多秘密和宝物。"}, {"num": 184, "type": "多选题", "section": "终局篇（古修之始·师傅和徒弟·混沌境·界心令·转世·宇宙神·飞雪大尊·究极·在路上·领主）", "question": "关于'混沌境'篇，以下哪些说法是正确的？（多选）", "options": {"A": "东伯雪鹰成功突破到混沌境", "B": "九云帝君的四幅图是蕴含至高规则的宝物", "C": "四幅图分别代表不同的修行道路和规则奥妙", "D": "混沌境是修行的最高境界"}, "ans": "ABC", "analysis": "混沌境之上还有更高层次的境界，不是最高境界。D选项错误。"}, {"num": 185, "type": "简答题", "section": "终局篇（古修之始·师傅和徒弟·混沌境·界心令·转世·宇宙神·飞雪大尊·究极·在路上·领主）", "question": "'飞雪大尊'篇中，东伯雪鹰为何化名'飞雪'？不死冥帝是谁？他与东伯雪鹰的恩怨如何了结？", "options": {}, "ans": null, "analysis": "东伯雪鹰化名'飞雪'是为了隐藏身份、暗中行事或执行特殊任务。在这个身份下，他经历了诸多冒险，与各方势力周旋。不死冥帝是界心大陆上的超级强者之一，与东伯雪鹰有着深仇大恨（可能涉及前世今生的恩怨）。最终东伯雪鹰以绝对实力碾压了不死冥帝，了结了这段因果。"}, {"num": 186, "type": "简答题", "section": "终局篇（古修之始·师傅和徒弟·混沌境·界心令·转世·宇宙神·飞雪大尊·究极·在路上·领主）", "question": "'究极'篇中，东伯雪鹰的修为达到了什么层次？北河大帝和巫风大帝是谁？他在断牙山脉中获得了什么机缘？", "options": {}, "ans": null, "analysis": "'究极'篇中，东伯雪鹰的修为达到了'究极境'——这是虚界幻境道的最高境界。北河大帝和巫风大帝是界心大陆上的其他顶尖强者，与东伯雪鹰既有竞争也有合作。他在断牙山脉中获得了关于灵魂道路的终极感悟，创出了灵魂层面的强大杀招，这成为他日后战胜更强对手的关键底牌。"}, {"num": 187, "type": "单选题", "section": "终局篇（古修之始·师傅和徒弟·混沌境·界心令·转世·宇宙神·飞雪大尊·究极·在路上·领主）", "question": "九云帝君的四幅图是什么？", "options": {"A": "四件蕴含至高规则的宝物/绝学", "B": "四种枪法招式", "C": "四座山脉", "D": "四位强者"}, "ans": "A", "analysis": "九云帝君的四幅图是四件蕴含至高规则的宝物/绝学。"}, {"num": 188, "type": "简答题", "section": "终局篇（古修之始·师傅和徒弟·混沌境·界心令·转世·宇宙神·飞雪大尊·究极·在路上·领主）", "question": "'在路上'篇中，东伯雪鹰的修行之路有何新突破？他拜师了谁？虚界幻境道的第三杀招是什么？", "options": {}, "ans": null, "analysis": "'在路上'篇中，东伯雪鹰的修行之路有了新的突破方向——他可能拜入了一位更高层次的强者门下，或者在游历中自行悟出了新的道路。虚界幻境道的第三杀招是他对虚界和幻境规则理解的终极体现，是一种可以改变战场格局的恐怖手段。这个篇章强调了'修行路要靠自己走'的主题。"}, {"num": 189, "type": "简答题", "section": "终局篇（古修之始·师傅和徒弟·混沌境·界心令·转世·宇宙神·飞雪大尊·究极·在路上·领主）", "question": "大结局中，东伯雪鹰是如何成为'领主'的？浑源空间是什么？修行者和天生浑源生命之间的终极战争结局如何？", "options": {}, "ans": null, "analysis": "大结局中，东伯雪鹰在浑源空间中经历了最终的磨砺和突破，成功成为'领主'——这是无限浑源空间中最强大的生命体之一。浑源空间是一切存在的终极领域，超越了物质界、神界、深渊等所有层面。修行者一方与天生浑源生命（始祖们）展开了终极战争。东伯雪鹰凭借虚界幻境道的究极实力、多位领主的协助、以及他独特的灵魂招数，在最终战争中发挥了关键作用。"}, {"num": 190, "type": "多选题", "section": "终局篇（古修之始·师傅和徒弟·混沌境·界心令·转世·宇宙神·飞雪大尊·究极·在路上·领主）", "question": "关于'界心令'篇，以下哪些说法是正确的？（多选）", "options": {"A": "界心令蕴含世界核心力量", "B": "赤眉山主是界心大陆上的重要势力人物", "C": "东伯雪鹰'死'过一次", "D": "'死'意味着真正的终结"}, "ans": "ABC", "analysis": "'死'的深层含义是放下执念、突破心境达到更高修行境界，不是真正的终结。D选项错误。"}, {"num": 191, "type": "简答题", "section": "终局篇（古修之始·师傅和徒弟·混沌境·界心令·转世·宇宙神·飞雪大尊·究极·在路上·领主）", "question": "请综合分析《雪鹰领主》的结局如何呼应小说开头的伏笔。至少列举三个呼应点并分析其叙事意义。", "options": {}, "ans": null, "analysis": "1）开头东伯雪鹰发誓救父母→最终不仅救回家人还成为超越一切的强者，完成了'守护家人'的核心动机；2）开头练习枪法梦想'成为超凡'→最终走到修行路尽头成为领主，完成了从凡人到至高的完整蜕变；3）开头宗凌说'得到黑铁令就告诉你一切'→这条线索贯穿全书最终收束，黑铁令成为推动整个故事的初始动力。这些呼应体现了作者精心构建的叙事结构，让读者感受到故事的完整性和宿命感，也深化了'走自己的路'这一核心主题。"}, {"num": 192, "type": "简答题", "section": "终局篇（古修之始·师傅和徒弟·混沌境·界心令·转世·宇宙神·飞雪大尊·究极·在路上·领主）", "question": "请分析《雪鹰领主》的标题'雪鹰领主'中'雪鹰'和'领主'分别有什么象征意义？", "options": {}, "ans": null, "analysis": "'雪鹰'象征着主角的出身和初心——雪鹰领的少年、父亲留下的枪法、童年的梦想。它是东伯雪鹰身份的根源，提醒他无论走多远都别忘了自己从哪里来。'领主'则象征着他最终的成就——不仅是雪鹰领的领主，更是浑源空间的领主。从'雪鹰'到'领主'，完整概括了他从一个地方少年成长为宇宙最强者的史诗级旅程。标题本身就是一个成长叙事的浓缩。"}, {"num": 193, "type": "多选题", "section": "终局篇（古修之始·师傅和徒弟·混沌境·界心令·转世·宇宙神·飞雪大尊·究极·在路上·领主）", "question": "关于'转世'篇，以下哪些说法是正确的？（多选）", "options": {"A": "东伯雪鹰转世到了界心大陆", "B": "这具身体的身世不凡", "C": "转世后他失去了大部分力量和记忆", "D": "转世是因为他害怕敌人"}, "ans": "ABC", "analysis": "转世是因为不得已的原因（躲避强敌、修炼特殊功法或世界毁灭后的重生等），不是害怕敌人。D选项错误。"}, {"num": 194, "type": "简答题", "section": "终局篇（古修之始·师傅和徒弟·混沌境·界心令·转世·宇宙神·飞雪大尊·究极·在路上·领主）", "question": "小说中'走自己的路'这个主题是如何通过东伯雪鹰的成长体现的？请结合多个篇章分析。", "options": {}, "ans": null, "analysis": "'走自己的路'是贯穿全书的核心主题。在凡人篇，东伯雪鹰拒绝学院选择自己摸索修行；在血刃篇，他通过毁灭山脉的独自历练找到枪法的真谛；在超凡篇，他走出自己的战斗风格；在神魔战争篇，他不被传统束缚创新战术；在神界及后续篇章，他不断突破既定框架达到新境界。每一次突破都是'走自己的路'的体现——不盲从权威、不照搬他人经验、在实践中悟出属于自己的道路。这与小说中'学院派难成超凡'的设定形成呼应，强调了独立思考和创新精神的重要性。"}, {"num": 195, "type": "单选题", "section": "终局篇（古修之始·师傅和徒弟·混沌境·界心令·转世·宇宙神·飞雪大尊·究极·在路上·领主）", "question": "东伯雪鹰转世后凭借什么很快重新崛起？", "options": {"A": "靠运气", "B": "靠前世积累和过人天赋", "C": "靠敌人帮忙", "D": "靠放弃修行"}, "ans": "B", "analysis": "东伯雪鹰凭借过人的天赋和前世积累很快重新崛起。"}, {"num": 196, "type": "多选题", "section": "终局篇（古修之始·师傅和徒弟·混沌境·界心令·转世·宇宙神·飞雪大尊·究极·在路上·领主）", "question": "以下哪些是东伯雪鹰的重要品质？（多选）", "options": {"A": "勤奋刻苦", "B": "爱护家人", "C": "独立思考", "D": "依赖学院教育"}, "ans": "ABC", "analysis": "东伯雪鹰不依赖学院教育，他选择了自己摸索的道路。D选项错误。"}, {"num": 197, "type": "单选题", "section": "终局篇（古修之始·师傅和徒弟·混沌境·界心令·转世·宇宙神·飞雪大尊·究极·在路上·领主）", "question": "东伯雪鹰最核心的修行理念是什么？", "options": {"A": "依赖他人指导", "B": "走自己的路，独立摸索", "C": "只靠天赋", "D": "放弃修行"}, "ans": "B", "analysis": "东伯雪鹰的核心理念是走自己的路，不依赖他人指引，通过自己的摸索和领悟变强。"}, {"num": 198, "type": "简答题", "section": "终局篇（古修之始·师傅和徒弟·混沌境·界心令·转世·宇宙神·飞雪大尊·究极·在路上·领主）", "question": "本章中哪个配角给你留下了深刻印象？为什么？", "options": {}, "ans": null, "analysis": "开放性题目，选择任意配角进行分析，说明其性格特点和对主角/剧情的作用即可。"}, {"num": 199, "type": "简答题", "section": "终局篇（古修之始·师傅和徒弟·混沌境·界心令·转世·宇宙神·飞雪大尊·究极·在路上·领主）", "question": "请结合本章内容，分析东伯雪鹰做出的某个重要决定及其影响。", "options": {}, "ans": null, "analysis": "开放性题目，选择本章中主角的一个重要决定进行分析，说明决定的原因和后续影响即可。"}, {"num": 200, "type": "简答题", "section": "终局篇（古修之始·师傅和徒弟·混沌境·界心令·转世·宇宙神·飞雪大尊·究极·在路上·领主）", "question": "本章中出现的宝物/功法对主角后续成长有什么作用？", "options": {}, "ans": null, "analysis": "开放性题目，选择本章中出现的任意宝物或功法，分析其对主角实力提升和剧情推进的作用即可。 评分等级 【系统提示】宿主，恭喜你完成了全卷测试！无论得分如何，你对《雪鹰领主》的热爱和执着都值得敬佩。继续加油，真正的强者永远在路上！"}], "sections": ["凡人篇（雪鹰领·成长·学院）", "血刃篇（血刃榜·龙山榜·初露锋芒）", "超凡篇（池丘白·海神宫·父母团圆）", "神魔战争篇（恶魔入侵·黑风神宫·决战）", "神界篇（红石山·拜师·神界新人）", "纵横篇（监察使·深渊·帝君之路）", "主宰篇（黑葫芦·血染飞舟·最强尊者）", "至高篇（主宰·镇宫绝学·混沌城·我心为天心）", "终局篇（古修之始·师傅和徒弟·混沌境·界心令·转世·宇宙神·飞雪大尊·究极·在路上·领主）"]};
+const QS = DATA.questions;
+const N = QS.length;
+const HALF = 0.5;
+
+/* ---------- 星空背景 ---------- */
+(function(){
+  const c = document.getElementById('stars'), ctx = c.getContext('2d');
+  let stars = [];
+  function resize(){ c.width = innerWidth; c.height = innerHeight;
+    stars = Array.from({length:110},()=>({x:Math.random()*c.width,y:Math.random()*c.height,r:Math.random()*1.3+.3,tw:Math.random()*6.28,sp:Math.random()*.015+.004}));
+  }
+  resize(); addEventListener('resize',resize);
+  (function loop(){
+    ctx.clearRect(0,0,c.width,c.height);
+    for(const s of stars){
+      s.tw += s.sp;
+      const a = .25 + Math.abs(Math.sin(s.tw))*.55;
+      ctx.globalAlpha = a; ctx.fillStyle = '#dfe8ff';
+      ctx.beginPath(); ctx.arc(s.x,s.y,s.r,0,6.28); ctx.fill();
+    }
+    requestAnimationFrame(loop);
+  })();
+})();
+
+/* ---------- 状态 ---------- */
+let answers = {};   // num -> 单选:"B"  多选:["A","C"]  简答:"文本"
+let cur = 0;        // 当前题下标
+let graded = false; // 是否已交卷
+let saGrade = {};   // 简答题自评 num -> 0 / 0.25 / 0.5
+const STORE = 'xy_exam_v1';
+function save(){ try{ localStorage.setItem(STORE, JSON.stringify({answers, cur})); }catch(e){} }
+function load(){ try{ const d = JSON.parse(localStorage.getItem(STORE)); if(d){ answers = d.answers||{}; cur = d.cur||0; } }catch(e){} }
+
+function isAnswered(q){
+  const a = answers[q.num];
+  if(q.type==='简答题') return typeof a==='string' && a.trim().length>0;
+  if(q.type==='单选题') return typeof a==='string' && a.length>0;
+  return Array.isArray(a) && a.length>0;
+}
+function countDone(){ return QS.filter(isAnswered).length; }
+
+/* ---------- 界面切换 ---------- */
+const $ = id => document.getElementById(id);
+function show(id){ ['intro','exam','result'].forEach(s=>$(s).classList.toggle('hidden', s!==id)); scrollTo(0,0); }
+
+/* ---------- 渲染题目 ---------- */
+function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function renderQ(){
+  const q = QS[cur];
+  $('secLabel').textContent = '第' + '一二三四五六七八九'[DATA.sections.indexOf(q.section)] + '关 · ' + q.section;
+  $('navHint').textContent = (cur+1) + ' / ' + N;
+  const typeBadge = q.type==='简答题' ? '<span class="badge jade">简答题</span>'
+                  : q.type==='单选题' ? '<span class="badge">单选题</span>' : '<span class="badge">多选题 · 全对得分</span>';
+  let body = '<div class="q-head"><span class="q-num">第 ' + q.num + ' 题</span>' + typeBadge + '</div>';
+  body += '<div class="q-text">' + esc(q.question) + '</div>';
+
+  const a = answers[q.num];
+  if(q.type==='简答题'){
+    body += '<textarea id="saInput" placeholder="在此写下你的回答……（须全部 200 题作答完毕方可交卷）"' + (graded?' disabled':'') + '>' + esc(a||'') + '</textarea>';
+  } else {
+    const keys = Object.keys(q.options);
+    keys.forEach(k=>{
+      const sel = q.type==='单选题' ? a===k : (Array.isArray(a)&&a.includes(k));
+      body += '<div class="opt' + (sel?' sel':'') + '" data-key="' + k + '"><span class="key">' + k + '.</span>' + esc(q.options[k]) + '</div>';
+    });
+  }
+  if(graded){ // 交卷后每题底部附解析
+    const g = gradeOne(q);
+    const mark = g.correct
+      ? '<span style="color:var(--jade)">✔ 回答正确（+' + g.score + ' 分）</span>'
+      : '<span style="color:var(--red)">✘ 回答有误</span>';
+    body += '<div style="margin-top:22px;border-top:1px dashed var(--line);padding-top:16px">'
+         +  '<div style="margin-bottom:10px;font-size:15px">' + mark + '</div>'
+         +  '<div class="wc-analysis"><b style="color:var(--gold)">【参考答案与解析】</b><br>' + esc(q.analysis) + '</div></div>';
+    if(q.type==='简答题'){
+      body += '<div class="grade-btns" style="margin-top:10px"><span class="grade-suggest">模糊判分建议 ' + g.score + ' 分，可自评调整：</span>'
+           +  [0.5,0.25,0].map(v=>'<button data-g="' + v + '" class="' + (saGrade[q.num]===v?'on':'') + '">' + (v===0.5?'答出要点 0.5分':v===0.25?'部分答出 0.25分':'未答出 0分') + '</button>').join('')
+           +  '</div>';
+    }
+  }
+  $('qCard').innerHTML = body;
+  bindQEvents(q);
+  updateProgress();
+  updateDots();
+}
+
+function bindQEvents(q){
+  if(!graded && q.type==='简答题'){
+    $('saInput').addEventListener('input', e=>{ answers[q.num] = e.target.value; updateProgress(); updateDots(); save(); });
+  }
+  if(!graded && q.type!=='简答题'){
+    $('qCard').querySelectorAll('.opt').forEach(el=>{
+      el.addEventListener('click', ()=>{
+        const k = el.dataset.key;
+        if(q.type==='单选题'){ answers[q.num] = k; }
+        else {
+          let arr = Array.isArray(answers[q.num]) ? answers[q.num].slice() : [];
+          arr = arr.includes(k) ? arr.filter(x=>x!==k) : arr.concat(k);
+          answers[q.num] = arr;
+        }
+        renderQ(); save();
+      });
+    });
+  }
+  if(graded){
+    $('qCard').querySelectorAll('.grade-btns button').forEach(el=>{
+      el.addEventListener('click', ()=>{ saGrade[q.num] = parseFloat(el.dataset.g); saveGrade(); renderQ(); renderResult(); });
+    });
+  }
+}
+
+function updateProgress(){
+  const d = countDone();
+  $('progressBar').style.width = (d/N*100) + '%';
+  $('progressText').textContent = d + ' / ' + N + (d===N?' · 可交卷':'');
+}
+
+/* ---------- 判分 ---------- */
+function bigrams(s){
+  s = (s||'').replace(/[\s，。、；：！？（）"''""《》·…—\.\,\?\!\(\)\/\\0-9a-zA-Z]/g,'');
+  const set = new Set();
+  for(let i=0;i<s.length-1;i++) set.add(s.slice(i,i+2));
+  return set;
+}
+function gradeOne(q){
+  if(q.type==='简答题'){
+    if(q.num in saGrade) return {score: saGrade[q.num], correct: saGrade[q.num]>0, suggested:false};
+    const mine = bigrams(answers[q.num]||''), ref = bigrams(q.analysis);
+    if(!mine.size) return {score:0, correct:false, suggested:true};
+    let inter = 0; mine.forEach(g=>{ if(ref.has(g)) inter++; });
+    const sim = inter / Math.min(mine.size, ref.size || 1);
+    const s = sim>=0.3 ? 0.5 : sim>=0.15 ? 0.25 : 0;
+    return {score:s, correct:s>0, suggested:true};
+  }
+  const mine = q.type==='单选题' ? (answers[q.num]||'') : (answers[q.num]||[]).slice().sort().join('');
+  const correct = mine === (q.ans||'').split('').sort().join('');
+  return {score: correct ? HALF : 0, correct};
+}
+function totalScore(){
+  let s = 0;
+  QS.forEach(q=>{
+    if(q.type==='简答题'){
+      if(q.num in saGrade) s += saGrade[q.num];
+      else s += gradeOne(q).score;
+    } else s += gradeOne(q).score;
+  });
+  return Math.round(s*100)/100;
+}
+function levelOf(s){
+  if(s<=20)  return ['路人甲','你可能只看了开头就弃文了……'];
+  if(s<=40)  return ['普通读者','看过但没太走心，很多细节记不清了。'];
+  if(s<=70)  return ['资深书迷','五刷老粉的实力，但有些冷门篇章可能跳过了。'];
+  return ['攻略系统认证 · 雪鹰领主大师','你对这部小说的理解已经登峰造极！'];
+}
+function saveGrade(){ try{ localStorage.setItem(STORE+'_grade', JSON.stringify({saGrade})); }catch(e){} }
+function loadGrade(){ try{ const d = JSON.parse(localStorage.getItem(STORE+'_grade')); if(d) saGrade = d.saGrade||{}; }catch(e){} }
+
+/* ---------- 结果 ---------- */
+let resTab = 'wrong';
+function renderResult(){
+  const s = totalScore();
+  $('scoreNum').textContent = s;
+  const [name, desc] = levelOf(s);
+  $('levelName').textContent = '「 ' + name + ' 」';
+  $('levelDesc').textContent = desc;
+  const wrongN = QS.filter(q=>!gradeOne(q).correct).length;
+  const choiceN = QS.filter(q=>q.type!=='简答题').length;
+  const choiceRight = QS.filter(q=>q.type!=='简答题' && gradeOne(q).correct).length;
+  const saN = N - choiceN;
+  const saRight = QS.filter(q=>q.type==='简答题' && gradeOne(q).correct).length;
+  $('scoreNote').innerHTML = '选择题 ' + choiceRight + ' / ' + choiceN + ' 题正确 · 简答题 ' + saRight + ' / ' + saN + ' 题得分（简答题默认给出模糊判分建议，可在下方逐题自评调整，总分实时更新）';
+
+  const tabs = [['wrong','错题解析 (' + wrongN + ')'],['all','全部题目 (' + N + ')']];
+  $('resTabs').innerHTML = tabs.map(t=>'<button class="' + (resTab===t[0]?'on':'') + '" data-t="' + t[0] + '">' + t[1] + '</button>').join('');
+  $('resTabs').querySelectorAll('button').forEach(b=>b.addEventListener('click', ()=>{ resTab=b.dataset.t; renderResult(); }));
+
+  const list = QS.filter(q=> resTab==='wrong' ? !gradeOne(q).correct : true);
+  $('resBody').innerHTML = list.map(q=>{
+    const g = gradeOne(q);
+    let mine;
+    if(q.type==='简答题') mine = esc((answers[q.num]||'').trim() || '（未作答）');
+    else if(q.type==='单选题') mine = q.options[answers[q.num]] ? answers[q.num] + '. ' + esc(q.options[answers[q.num]]) : '（未作答）';
+    else mine = (answers[q.num]&&answers[q.num].length) ? answers[q.num].map(k=>k+'. '+esc(q.options[k])).join('；') : '（未作答）';
+    let html = '<div class="wrong-card' + (g.correct?' right':'') + '">';
+    html += '<div class="wc-head"><span class="wc-num">第 ' + q.num + ' 题</span><span class="badge' + (q.type==='简答题'?' jade':'') + '">' + q.type + '</span>'
+         +  '<span style="margin-left:auto;color:' + (g.correct?'var(--jade)':'var(--red)') + ';font-size:14px">'
+         +  (g.correct?'✔ +'+g.score+' 分':'✘ 得 0 分') + '</span></div>';
+    html += '<div class="wc-q">' + esc(q.question) + '</div>';
+    html += '<div class="wc-row"><b>你的回答：</b><span class="mine">' + mine + '</span></div>';
+    if(q.type!=='简答题'){
+      const letters = (q.ans||'').split('');
+      html += '<div class="wc-row"><b>正确答案：</b><span class="correct">' + letters.map(k=>k+'. '+esc(q.options[k])).join('；') + '</span></div>';
+    }
+    html += '<div class="wc-analysis"><b style="color:var(--gold)">【参考答案与解析】</b><br>' + esc(q.analysis) + '</div>';
+    if(q.type==='简答题'){
+      html += '<div class="grade-btns"><span class="grade-suggest">模糊判分建议 ' + g.score + ' 分，自评：</span>'
+           +  [0.5,0.25,0].map(v=>'<button data-n="' + q.num + '" data-g="' + v + '" class="' + ((q.num in saGrade && saGrade[q.num]===v)?'on':'') + '">' + (v===0.5?'答出要点 0.5分':v===0.25?'部分答出 0.25分':'未答出 0分') + '</button>').join('')
+           +  '</div>';
+    }
+    html += '<div style="margin-top:12px"><button class="btn small ghost" data-jump="' + QS.indexOf(q) + '">↩ 跳转到原题</button></div>';
+    html += '</div>';
+    return html;
+  }).join('') || '<p style="color:var(--jade);text-align:center;padding:30px">恭喜，没有错題！</p>';
+
+  $('resBody').querySelectorAll('[data-jump]').forEach(b=>b.addEventListener('click', ()=>{
+    cur = parseInt(b.dataset.jump); show('exam'); renderQ();
+    toast('已定位到第 ' + QS[cur].num + ' 题');
+  }));
+  $('resBody').querySelectorAll('[data-n]').forEach(b=>b.addEventListener('click', ()=>{
+    saGrade[parseInt(b.dataset.n)] = parseFloat(b.dataset.g); saveGrade(); renderResult();
+  }));
+}
+
+/* ---------- 题目导航 ---------- */
+function buildNav(){
+  $('navBody').innerHTML = DATA.sections.map((sec,si)=>{
+    const qs = QS.map((q,i)=>({q,i})).filter(o=>o.q.section===sec);
+    return '<div class="nav-sec"><h3>第' + '一二三四五六七八九'[si] + '关 · ' + esc(sec) + '</h3>'
+         + qs.map(o=>'<span class="dot" data-i="' + o.i + '">' + o.q.num + '</span>').join('') + '</div>';
+  }).join('');
+  $('navBody').querySelectorAll('.dot').forEach(d=>d.addEventListener('click', ()=>{
+    cur = parseInt(d.dataset.i); $('navPanel').classList.add('hidden'); renderQ();
+  }));
+  updateDots();
+}
+function updateDots(){
+  $('navBody').querySelectorAll('.dot').forEach(d=>{
+    const i = parseInt(d.dataset.i);
+    d.classList.toggle('done', isAnswered(QS[i]));
+    d.classList.toggle('cur', i===cur);
+  });
+}
+
+/* ---------- 交互 ---------- */
+function toast(msg){
+  const t = document.createElement('div'); t.className='toast'; t.textContent = msg;
+  document.body.appendChild(t); setTimeout(()=>t.remove(), 2200);
+}
+$('startBtn').addEventListener('click', ()=>{ load(); if(graded){ show('result'); renderResult(); } else { show('exam'); renderQ(); } });
+$('prevBtn').addEventListener('click', ()=>{ if(cur>0){ cur--; renderQ(); save(); } });
+$('nextBtn').addEventListener('click', ()=>{ if(cur<N-1){ cur++; renderQ(); save(); } else toast('已是最后一题'); });
+$('navBtn').addEventListener('click', ()=>{ buildNav(); $('navPanel').classList.remove('hidden'); });
+$('navClose').addEventListener('click', ()=>$('navPanel').classList.add('hidden'));
+
+$('submitBtn').addEventListener('click', ()=>{
+  const d = countDone();
+  if(d < N){
+    $('confirmText').innerHTML = '尚有 <b style="color:var(--gold)">' + (N-d) + '</b> 题未作答。点击下方题号可立即前往补答：';
+    const miss = QS.filter(q=>!isAnswered(q));
+    $('missList').innerHTML = miss.map(q=>'<span style="cursor:pointer;text-decoration:underline" data-m="' + QS.indexOf(q) + '">第' + q.num + '题</span>').join('　');
+    $('missList').querySelectorAll('[data-m]').forEach(el=>el.addEventListener('click', ()=>{
+      cur = parseInt(el.dataset.m); $('confirmModal').classList.add('hidden'); renderQ();
+    }));
+  } else {
+    $('confirmText').textContent = '二百题皆已作答。交卷后系统自动判分，简答题可对照解析自评。确认交卷？';
+    $('missList').innerHTML = '';
+  }
+  $('confirmModal').classList.remove('hidden');
+});
+$('cancelSubmit').addEventListener('click', ()=>$('confirmModal').classList.add('hidden'));
+$('doSubmit').addEventListener('click', ()=>{
+  if(countDone() < N){ $('confirmModal').classList.add('hidden'); toast('全部作答后才能交卷'); return; }
+  graded = true; loadGrade(); $('confirmModal').classList.add('hidden');
+  show('result'); renderResult(); toast('考验完成，已结算');
+});
+$('backExam').addEventListener('click', ()=>{ show('exam'); renderQ(); });
+$('restartBtn').addEventListener('click', ()=>{
+  if(!confirm('确定清空所有作答并重新开始？')) return;
+  answers = {}; saGrade = {}; cur = 0; graded = false;
+  try{ localStorage.removeItem(STORE); localStorage.removeItem(STORE+'_grade'); }catch(e){}
+  show('exam'); renderQ();
+});
+document.addEventListener('keydown', e=>{
+  if($('exam').classList.contains('hidden')) return;
+  if(e.key==='ArrowLeft') $('prevBtn').click();
+  if(e.key==='ArrowRight') $('nextBtn').click();
+});
+</script>
+</body>
+</html>
